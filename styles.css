@@ -8,8 +8,24 @@
     box-sizing: border-box;
 }
 
+/* Critical rendering optimizations */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Load performance critical styles first */
+body, main, nav, section {
+    will-change: auto; /* Reset will-change when not needed */
+}
+
 html {
     scroll-behavior: smooth;
+    font-display: swap; /* Faster font loading */
 }
 
 body {
@@ -19,6 +35,7 @@ body {
     background-color: var(--bg-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
     overflow-x: hidden;
+    contain: layout style; /* CSS containment for better performance */
 }
 
 /* ================================
@@ -31,6 +48,7 @@ body {
     left: 0;
     pointer-events: none;
     z-index: 9998;
+    will-change: transform;
 }
 
 .trail-dot {
@@ -52,6 +70,9 @@ body {
     filter: blur(25px);
     mix-blend-mode: screen;
     animation: breathe 4s ease-in-out infinite;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    perspective: 1000px;
 }
 
 [data-theme="dark"] .trail-dot {
@@ -119,18 +140,25 @@ body {
     left: 0;
     pointer-events: none;
     z-index: 9997;
+    contain: layout style paint;
+    will-change: contents;
 }
 
 .particle {
     position: absolute;
-    width: 6px;
-    height: 6px;
-    background: rgba(50, 50, 50, 1);
+    width: 8px;
+    height: 8px;
+    background: rgba(50, 50, 50, 0.8);
     border-radius: 50%;
-    opacity: 0;
+    opacity: 1;
     transform: translate(-50%, -50%);
     animation: particleFade 1.8s ease-out forwards;
-    box-shadow: 0 0 8px rgba(50, 50, 50, 0.6);
+    box-shadow: 0 0 12px rgba(50, 50, 50, 0.8);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    contain: layout style paint;
+    z-index: 10000;
+    pointer-events: none;
 }
 
 [data-theme="dark"] .particle {
@@ -360,12 +388,15 @@ body {
     animation: fadeInUp 1s ease 0.2s forwards;
 }
 
+/* Logo and interactive elements optimization */
 .animated-logo {
     width: 120px;
     height: 120px;
     cursor: pointer;
     transition: transform 0.3s ease;
     outline: none;
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .animated-logo:hover {
@@ -378,6 +409,24 @@ body {
 
 .animated-logo:focus-visible {
     transform: scale(1.1);
+}
+
+.theme-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 0.75rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    outline: none;
+    will-change: transform, background-color;
+    backface-visibility: hidden;
 }
 
 .logo-circle {

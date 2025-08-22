@@ -16,7 +16,7 @@ class MouseTrailManager {
         this.lastMouseX = 0;
         this.lastMouseY = 0;
         
-        if (this.trail) {
+        if (this.trail && this.particleContainer) {
             this.init();
         }
     }
@@ -24,53 +24,49 @@ class MouseTrailManager {
     init() {
         this.bindEvents();
         this.addHoverTargets();
-        this.startAnimation();
+        this.animate();
     }
 
     bindEvents() {
-        // Track mouse position
         document.addEventListener('mousemove', (e) => {
             this.mouseX = e.clientX;
             this.mouseY = e.clientY;
-            
-            // Create particles occasionally
             this.createParticle(e.clientX, e.clientY);
         });
 
-        // Show/hide trail
+        // Ensure trail is always visible when mouse is on page
         document.addEventListener('mouseenter', () => {
-            this.trail.style.opacity = '1';
-            this.particleContainer.style.opacity = '1';
+            if (this.trail) this.trail.style.opacity = '1';
+            if (this.particleContainer) this.particleContainer.style.opacity = '1';
         });
 
         document.addEventListener('mouseleave', () => {
-            this.trail.style.opacity = '0';
-            this.particleContainer.style.opacity = '0';
+            if (this.trail) this.trail.style.opacity = '0';
+            if (this.particleContainer) this.particleContainer.style.opacity = '0';
         });
+        
+        // Make sure trail is visible from start
+        if (this.trail) this.trail.style.opacity = '1';
+        if (this.particleContainer) this.particleContainer.style.opacity = '1';
     }
 
     createParticle(x, y) {
         const now = Date.now();
         
-        // Calculate mouse movement speed and direction
+        // Calculate mouse movement speed
         const deltaX = x - (this.lastMouseX || x);
         const deltaY = y - (this.lastMouseY || y);
         const speed = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         
-        // Calculate movement direction for line trail
-        const angle = Math.atan2(deltaY, deltaX);
+        // Skip if no movement
+        if (speed < 2) {
+            this.lastMouseX = x;
+            this.lastMouseY = y;
+            return;
+        }
         
-        // Particle count based on speed
-        let particleCount = 1;
-        if (speed > 10) particleCount = 2;
-        if (speed > 30) particleCount = 3;
-        if (speed > 60) particleCount = 4;
-        if (speed > 100) particleCount = 6;
-        if (speed > 150) particleCount = 8;
-        
-        // Faster throttling for more particles
-        const throttleTime = speed > 50 ? 15 : 25;
-        if (now - this.lastParticleTime < throttleTime) {
+        // Throttling - only create particles every 60ms
+        if (now - this.lastParticleTime < 60) {
             this.lastMouseX = x;
             this.lastMouseY = y;
             return;
@@ -80,69 +76,88 @@ class MouseTrailManager {
         this.lastMouseX = x;
         this.lastMouseY = y;
         
-        // Create particles in a line behind the cursor
+        // Create 1-2 particles based on speed
+        const particleCount = Math.min(Math.floor(speed / 40) + 1, 2);
+        
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
-            particle.className = 'particle';
             
-            // Place particles in a line behind the cursor based on movement direction
-            const distance = (i + 1) * 15; // Distance between particles
-            const lineOffsetX = -Math.cos(angle) * distance;
-            const lineOffsetY = -Math.sin(angle) * distance;
+            // Get theme for particle color
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const particleColor = isDark ? 
+                'rgba(150, 200, 255, 0.8)' : 
+                'rgba(50, 50, 50, 0.8)';
+            const shadowColor = isDark ? 
+                'rgba(150, 200, 255, 0.6)' : 
+                'rgba(50, 50, 50, 0.6)';
             
-            // Add small random offset for natural look
-            const randomOffsetX = (Math.random() - 0.5) * 8;
-            const randomOffsetY = (Math.random() - 0.5) * 8;
+            // Set ALL styles inline for beautiful particles
+            particle.style.position = 'fixed';
+            particle.style.left = (x + (Math.random() - 0.5) * 20) + 'px';
+            particle.style.top = (y + (Math.random() - 0.5) * 20) + 'px';
+            particle.style.width = '6px';
+            particle.style.height = '6px';
+            particle.style.background = particleColor;
+            particle.style.borderRadius = '50%';
+            particle.style.opacity = '1';
+            particle.style.zIndex = '9999';
+            particle.style.pointerEvents = 'none';
+            particle.style.transform = 'translate(-50%, -50%)';
+            particle.style.boxShadow = `0 0 8px ${shadowColor}`;
             
-            const finalX = x + lineOffsetX + randomOffsetX;
-            const finalY = y + lineOffsetY + randomOffsetY;
+            // Add to body (we know this works)
+            document.body.appendChild(particle);
+            this.particles.push(particle);
             
-            particle.style.left = finalX + 'px';
-            particle.style.top = finalY + 'px';
-            
-            // Stagger creation for smooth line effect
-            if (i > 0) {
-                setTimeout(() => {
-                    this.particleContainer.appendChild(particle);
-                }, i * 3);
-            } else {
-                this.particleContainer.appendChild(particle);
-            }
-            
-            // Remove particle after animation
-            setTimeout(() => {
-                if (particle.parentNode) {
-                    particle.parentNode.removeChild(particle);
+            // Smooth fade out animation
+            let opacity = 1;
+            let scale = 1;
+            const fadeOut = setInterval(() => {
+                opacity -= 0.03;
+                scale -= 0.02;
+                if (opacity <= 0) {
+                    clearInterval(fadeOut);
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                    const index = this.particles.indexOf(particle);
+                    if (index > -1) {
+                        this.particles.splice(index, 1);
+                    }
+                } else {
+                    particle.style.opacity = opacity;
+                    particle.style.transform = `translate(-50%, -50%) scale(${scale})`;
                 }
-            }, 1800);
+            }, 60); // Slower, smoother fade
         }
     }
 
-    startAnimation() {
-        // Smooth trail animation with different easing for satisfying movement
-        const animate = () => {
-            // Variable easing based on mouse speed
-            const deltaX = this.mouseX - this.trailX;
-            const deltaY = this.mouseY - this.trailY;
-            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    animate() {
+        const updateTrail = () => {
+            // Smooth trail following
+            this.trailX += (this.mouseX - this.trailX) * 0.08;
+            this.trailY += (this.mouseY - this.trailY) * 0.08;
             
-            // Adaptive easing - faster when mouse moves quickly
-            let ease = 0.08;
-            if (distance > 100) ease = 0.15;
-            if (distance > 200) ease = 0.25;
+            // Update trail position with correct positioning
+            if (this.trailDot) {
+                this.trailDot.style.left = this.trailX + 'px';
+                this.trailDot.style.top = this.trailY + 'px';
+            }
             
-            // Apply easing
-            this.trailX += deltaX * ease;
-            this.trailY += deltaY * ease;
-            
-            // Update position
-            this.trailDot.style.left = this.trailX + 'px';
-            this.trailDot.style.top = this.trailY + 'px';
-            
-            requestAnimationFrame(animate);
+            requestAnimationFrame(updateTrail);
         };
         
-        animate();
+        updateTrail();
+    }
+
+    destroy() {
+        // Cleanup method for performance
+        this.particles.forEach(particle => {
+            if (particle.parentNode) {
+                particle.parentNode.removeChild(particle);
+            }
+        });
+        this.particles = [];
     }
 
     addHoverTargets() {
@@ -164,52 +179,83 @@ class MouseTrailManager {
 }
 
 // ================================
-// PARALLAX MOUSE TRACKING
+// PARALLAX MOUSE TRACKING (OPTIMIZED)
 // ================================
 
 class ParallaxManager {
     constructor() {
+        this.isActive = true;
+        this.rafId = null;
+        this.lastMouseX = 0;
+        this.lastMouseY = 0;
         this.init();
     }
 
     init() {
+        // Check if user prefers reduced motion
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            this.isActive = false;
+            return;
+        }
+        
         this.addParallaxEffect();
     }
 
     addParallaxEffect() {
+        let ticking = false;
+        
         document.addEventListener('mousemove', (e) => {
-            const { clientX: x, clientY: y } = e;
-            const { innerWidth: width, innerHeight: height } = window;
+            this.lastMouseX = e.clientX;
+            this.lastMouseY = e.clientY;
             
-            // Calculate mouse position as percentage
-            const xPercent = (x / width - 0.5) * 2; // -1 to 1
-            const yPercent = (y / height - 0.5) * 2; // -1 to 1
+            if (!ticking) {
+                this.rafId = requestAnimationFrame(() => {
+                    this.updateParallax();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+    }
 
-            // Apply subtle parallax to different elements
-            this.moveElement('.logo-circle-1', xPercent * 5, yPercent * 5);
-            this.moveElement('.logo-circle-2', xPercent * -3, yPercent * -3);
-            this.moveElement('.logo-circle-3', xPercent * 4, yPercent * -2);
-            this.moveElement('.logo-circle-4', xPercent * -2, yPercent * 4);
-            
-            // Subtle movement for the hero title
-            this.moveElement('.hero-title', xPercent * 2, yPercent * 2);
+    updateParallax() {
+        if (!this.isActive) return;
+        
+        const { innerWidth: width, innerHeight: height } = window;
+        const xPercent = (this.lastMouseX / width - 0.5) * 2;
+        const yPercent = (this.lastMouseY / height - 0.5) * 2;
+
+        // Batch DOM updates
+        const elements = [
+            { selector: '.logo-circle-1', x: xPercent * 3, y: yPercent * 3 },
+            { selector: '.logo-circle-2', x: xPercent * -2, y: yPercent * -2 },
+            { selector: '.logo-circle-3', x: xPercent * 2.5, y: yPercent * -1.5 },
+            { selector: '.logo-circle-4', x: xPercent * -1.5, y: yPercent * 2.5 },
+            { selector: '.hero-title', x: xPercent * 1, y: yPercent * 1 }
+        ];
+
+        elements.forEach(({ selector, x, y }) => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.style.transform = `translate(${x}px, ${y}px)`;
+            }
         });
     }
 
-    moveElement(selector, x, y) {
-        const element = document.querySelector(selector);
-        if (element) {
-            element.style.transform = `translate(${x}px, ${y}px)`;
+    destroy() {
+        if (this.rafId) {
+            cancelAnimationFrame(this.rafId);
         }
     }
 }
 
 // ================================
-// MAGNETIC EFFECT
+// MAGNETIC EFFECT (OPTIMIZED)
 // ================================
 
 class MagneticEffectManager {
     constructor() {
+        this.rafId = null;
         this.init();
     }
 
@@ -221,26 +267,45 @@ class MagneticEffectManager {
         const magneticElements = document.querySelectorAll('.theme-toggle, .animated-logo');
         
         magneticElements.forEach(element => {
+            let isHovering = false;
+            let ticking = false;
+            
+            element.addEventListener('mouseenter', () => {
+                isHovering = true;
+            }, { passive: true });
+            
             element.addEventListener('mousemove', (e) => {
-                const rect = element.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
+                if (!isHovering || ticking) return;
                 
-                const deltaX = e.clientX - centerX;
-                const deltaY = e.clientY - centerY;
-                
-                // Magnetic strength (adjust as needed)
-                const strength = 0.3;
-                const moveX = deltaX * strength;
-                const moveY = deltaY * strength;
-                
-                element.style.transform = `translate(${moveX}px, ${moveY}px)`;
-            });
+                ticking = true;
+                this.rafId = requestAnimationFrame(() => {
+                    const rect = element.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    
+                    const deltaX = e.clientX - centerX;
+                    const deltaY = e.clientY - centerY;
+                    
+                    const strength = 0.2; // Reduced for performance
+                    const moveX = deltaX * strength;
+                    const moveY = deltaY * strength;
+                    
+                    element.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                    ticking = false;
+                });
+            }, { passive: true });
             
             element.addEventListener('mouseleave', () => {
+                isHovering = false;
                 element.style.transform = 'translate(0, 0)';
-            });
+            }, { passive: true });
         });
+    }
+
+    destroy() {
+        if (this.rafId) {
+            cancelAnimationFrame(this.rafId);
+        }
     }
 }
 
@@ -457,35 +522,59 @@ class PerformanceManager {
         this.preloadCriticalResources();
         this.optimizeImages();
         this.addServiceWorker();
+        this.setupIntersectionObserver();
+    }
+
+    setupIntersectionObserver() {
+        // Optimize animations based on visibility
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const element = entry.target;
+                if (entry.isIntersecting) {
+                    element.style.animationPlayState = 'running';
+                } else {
+                    element.style.animationPlayState = 'paused';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        // Observe animated elements
+        const animatedElements = document.querySelectorAll('.animated-logo, .trail-dot, .status-dot');
+        animatedElements.forEach(el => observer.observe(el));
     }
 
     preloadCriticalResources() {
-        // Preload Inter font variations that we use
-        const fontWeights = ['300', '400', '500', '600', '700'];
-        fontWeights.forEach(weight => {
+        // Preload critical font weights only
+        const criticalFonts = [
+            'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2'
+        ];
+        
+        criticalFonts.forEach(fontUrl => {
             const link = document.createElement('link');
             link.rel = 'preload';
             link.as = 'font';
             link.type = 'font/woff2';
             link.crossOrigin = 'anonymous';
-            link.href = `https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2`;
+            link.href = fontUrl;
             document.head.appendChild(link);
         });
     }
 
     optimizeImages() {
-        // Lazy loading for future images
+        // Enhanced lazy loading with reduced threshold
         if ('IntersectionObserver' in window) {
             const imageObserver = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.classList.remove('lazy');
-                        imageObserver.unobserve(img);
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            img.classList.remove('lazy');
+                            imageObserver.unobserve(img);
+                        }
                     }
                 });
-            });
+            }, { rootMargin: '50px' }); // Reduced margin for better performance
 
             const lazyImages = document.querySelectorAll('img[data-src]');
             lazyImages.forEach(img => imageObserver.observe(img));
@@ -493,15 +582,12 @@ class PerformanceManager {
     }
 
     addServiceWorker() {
-        // Register service worker for caching (basic implementation)
+        // Service worker for caching with performance focus
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
+                    .catch(() => {
+                        // Silently fail to avoid console errors
                     });
             });
         }
@@ -590,17 +676,25 @@ class AccessibilityManager {
 // INITIALIZATION
 // ================================
 
+// ================================
+// INITIALIZATION
+// ================================
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize all managers
-    new MouseTrailManager();
-    new ParallaxManager();
-    new MagneticEffectManager();
-    new ThemeManager();
-    new AnimationManager();
-    new PerformanceManager();
-    new AccessibilityManager();
+    // Initialize critical managers first
+    const themeManager = new ThemeManager();
+    const performanceManager = new PerformanceManager();
+    const accessibilityManager = new AccessibilityManager();
     
-    // Add some visual feedback for successful load
+    // Initialize visual effects immediately for better user experience
+    requestAnimationFrame(() => {
+        const mouseTrailManager = new MouseTrailManager();
+        const parallaxManager = new ParallaxManager();
+        const magneticManager = new MagneticEffectManager();
+        const animationManager = new AnimationManager();
+    });
+    
+    // Add visual feedback for successful load
     setTimeout(() => {
         document.body.classList.add('loaded');
     }, 100);
