@@ -22,6 +22,142 @@ body {
 }
 
 /* ================================
+   MOUSE TRAIL EFFECT
+   ================================ */
+
+.mouse-trail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9998;
+}
+
+.trail-dot {
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 0.7) 0%,
+        rgba(200, 200, 255, 0.5) 20%,
+        rgba(150, 150, 255, 0.4) 40%,
+        rgba(100, 100, 255, 0.2) 60%,
+        transparent 100%
+    );
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    opacity: 0.6;
+    transition: width 0.4s ease, height 0.4s ease, opacity 0.4s ease;
+    filter: blur(25px);
+    mix-blend-mode: screen;
+    animation: breathe 4s ease-in-out infinite;
+}
+
+[data-theme="dark"] .trail-dot {
+    background: radial-gradient(
+        circle at center,
+        rgba(100, 150, 255, 0.4) 0%,
+        rgba(150, 100, 255, 0.3) 20%,
+        rgba(255, 100, 150, 0.2) 40%,
+        rgba(255, 150, 100, 0.15) 60%,
+        transparent 100%
+    );
+}
+
+.trail-dot.trail-hover {
+    width: 180px;
+    height: 180px;
+    opacity: 0.5;
+    filter: blur(35px);
+    background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 0.6) 0%,
+        rgba(150, 200, 255, 0.4) 15%,
+        rgba(100, 150, 255, 0.3) 30%,
+        rgba(200, 100, 255, 0.2) 50%,
+        transparent 100%
+    );
+    animation: breatheHover 2s ease-in-out infinite;
+}
+
+[data-theme="dark"] .trail-dot.trail-hover {
+    background: radial-gradient(
+        circle at center,
+        rgba(150, 200, 255, 0.6) 0%,
+        rgba(200, 150, 255, 0.4) 15%,
+        rgba(255, 150, 200, 0.3) 30%,
+        rgba(255, 200, 150, 0.2) 50%,
+        transparent 100%
+    );
+}
+
+@keyframes breathe {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+@keyframes breatheHover {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.15);
+    }
+}
+
+/* Particle trail effect */
+.trail-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9997;
+}
+
+.particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: rgba(50, 50, 50, 1);
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    animation: particleFade 1.8s ease-out forwards;
+    box-shadow: 0 0 8px rgba(50, 50, 50, 0.6);
+}
+
+[data-theme="dark"] .particle {
+    background: rgba(150, 200, 255, 1);
+    box-shadow: 0 0 8px rgba(150, 200, 255, 0.8);
+}
+
+@keyframes particleFade {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.1);
+    }
+}
+
+/* Hide trail on touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .mouse-trail,
+    .trail-particles {
+        display: none;
+    }
+}
+
+/* ================================
    CSS CUSTOM PROPERTIES (THEMES)
    ================================ */
 
@@ -188,8 +324,8 @@ body {
 }
 
 .hero-title {
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
-    font-weight: 400;
+    font-size: clamp(1.2rem, 3.5vw, 2rem);
+    font-weight: 300;
     line-height: 1.4;
     color: var(--text-primary);
     margin-bottom: 3rem;
@@ -225,8 +361,8 @@ body {
 }
 
 .animated-logo {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
     cursor: pointer;
     transition: transform 0.3s ease;
     outline: none;
@@ -504,13 +640,13 @@ body {
     }
     
     .hero-title {
-        font-size: 1.4rem;
+        font-size: 1.1rem;
         margin-bottom: 2rem;
     }
     
     .animated-logo {
-        width: 60px;
-        height: 60px;
+        width: 90px;
+        height: 90px;
     }
     
     .logo-animation {

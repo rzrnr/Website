@@ -1,4 +1,250 @@
 // ================================
+// MOUSE TRAIL MANAGER
+// ================================
+
+class MouseTrailManager {
+    constructor() {
+        this.trail = document.querySelector('.mouse-trail');
+        this.trailDot = document.querySelector('.trail-dot');
+        this.particleContainer = document.querySelector('.trail-particles');
+        this.mouseX = 0;
+        this.mouseY = 0;
+        this.trailX = 0;
+        this.trailY = 0;
+        this.particles = [];
+        this.lastParticleTime = 0;
+        this.lastMouseX = 0;
+        this.lastMouseY = 0;
+        
+        if (this.trail) {
+            this.init();
+        }
+    }
+
+    init() {
+        this.bindEvents();
+        this.addHoverTargets();
+        this.startAnimation();
+    }
+
+    bindEvents() {
+        // Track mouse position
+        document.addEventListener('mousemove', (e) => {
+            this.mouseX = e.clientX;
+            this.mouseY = e.clientY;
+            
+            // Create particles occasionally
+            this.createParticle(e.clientX, e.clientY);
+        });
+
+        // Show/hide trail
+        document.addEventListener('mouseenter', () => {
+            this.trail.style.opacity = '1';
+            this.particleContainer.style.opacity = '1';
+        });
+
+        document.addEventListener('mouseleave', () => {
+            this.trail.style.opacity = '0';
+            this.particleContainer.style.opacity = '0';
+        });
+    }
+
+    createParticle(x, y) {
+        const now = Date.now();
+        
+        // Calculate mouse movement speed and direction
+        const deltaX = x - (this.lastMouseX || x);
+        const deltaY = y - (this.lastMouseY || y);
+        const speed = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        
+        // Calculate movement direction for line trail
+        const angle = Math.atan2(deltaY, deltaX);
+        
+        // Particle count based on speed
+        let particleCount = 1;
+        if (speed > 10) particleCount = 2;
+        if (speed > 30) particleCount = 3;
+        if (speed > 60) particleCount = 4;
+        if (speed > 100) particleCount = 6;
+        if (speed > 150) particleCount = 8;
+        
+        // Faster throttling for more particles
+        const throttleTime = speed > 50 ? 15 : 25;
+        if (now - this.lastParticleTime < throttleTime) {
+            this.lastMouseX = x;
+            this.lastMouseY = y;
+            return;
+        }
+        
+        this.lastParticleTime = now;
+        this.lastMouseX = x;
+        this.lastMouseY = y;
+        
+        // Create particles in a line behind the cursor
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            // Place particles in a line behind the cursor based on movement direction
+            const distance = (i + 1) * 15; // Distance between particles
+            const lineOffsetX = -Math.cos(angle) * distance;
+            const lineOffsetY = -Math.sin(angle) * distance;
+            
+            // Add small random offset for natural look
+            const randomOffsetX = (Math.random() - 0.5) * 8;
+            const randomOffsetY = (Math.random() - 0.5) * 8;
+            
+            const finalX = x + lineOffsetX + randomOffsetX;
+            const finalY = y + lineOffsetY + randomOffsetY;
+            
+            particle.style.left = finalX + 'px';
+            particle.style.top = finalY + 'px';
+            
+            // Stagger creation for smooth line effect
+            if (i > 0) {
+                setTimeout(() => {
+                    this.particleContainer.appendChild(particle);
+                }, i * 3);
+            } else {
+                this.particleContainer.appendChild(particle);
+            }
+            
+            // Remove particle after animation
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, 1800);
+        }
+    }
+
+    startAnimation() {
+        // Smooth trail animation with different easing for satisfying movement
+        const animate = () => {
+            // Variable easing based on mouse speed
+            const deltaX = this.mouseX - this.trailX;
+            const deltaY = this.mouseY - this.trailY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            
+            // Adaptive easing - faster when mouse moves quickly
+            let ease = 0.08;
+            if (distance > 100) ease = 0.15;
+            if (distance > 200) ease = 0.25;
+            
+            // Apply easing
+            this.trailX += deltaX * ease;
+            this.trailY += deltaY * ease;
+            
+            // Update position
+            this.trailDot.style.left = this.trailX + 'px';
+            this.trailDot.style.top = this.trailY + 'px';
+            
+            requestAnimationFrame(animate);
+        };
+        
+        animate();
+    }
+
+    addHoverTargets() {
+        // Define interactive elements
+        const hoverTargets = document.querySelectorAll(
+            'a, button, .project-card, .animated-logo, .theme-toggle'
+        );
+
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => {
+                this.trailDot.classList.add('trail-hover');
+            });
+
+            target.addEventListener('mouseleave', () => {
+                this.trailDot.classList.remove('trail-hover');
+            });
+        });
+    }
+}
+
+// ================================
+// PARALLAX MOUSE TRACKING
+// ================================
+
+class ParallaxManager {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.addParallaxEffect();
+    }
+
+    addParallaxEffect() {
+        document.addEventListener('mousemove', (e) => {
+            const { clientX: x, clientY: y } = e;
+            const { innerWidth: width, innerHeight: height } = window;
+            
+            // Calculate mouse position as percentage
+            const xPercent = (x / width - 0.5) * 2; // -1 to 1
+            const yPercent = (y / height - 0.5) * 2; // -1 to 1
+
+            // Apply subtle parallax to different elements
+            this.moveElement('.logo-circle-1', xPercent * 5, yPercent * 5);
+            this.moveElement('.logo-circle-2', xPercent * -3, yPercent * -3);
+            this.moveElement('.logo-circle-3', xPercent * 4, yPercent * -2);
+            this.moveElement('.logo-circle-4', xPercent * -2, yPercent * 4);
+            
+            // Subtle movement for the hero title
+            this.moveElement('.hero-title', xPercent * 2, yPercent * 2);
+        });
+    }
+
+    moveElement(selector, x, y) {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.style.transform = `translate(${x}px, ${y}px)`;
+        }
+    }
+}
+
+// ================================
+// MAGNETIC EFFECT
+// ================================
+
+class MagneticEffectManager {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.addMagneticEffect();
+    }
+
+    addMagneticEffect() {
+        const magneticElements = document.querySelectorAll('.theme-toggle, .animated-logo');
+        
+        magneticElements.forEach(element => {
+            element.addEventListener('mousemove', (e) => {
+                const rect = element.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                const deltaX = e.clientX - centerX;
+                const deltaY = e.clientY - centerY;
+                
+                // Magnetic strength (adjust as needed)
+                const strength = 0.3;
+                const moveX = deltaX * strength;
+                const moveY = deltaY * strength;
+                
+                element.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                element.style.transform = 'translate(0, 0)';
+            });
+        });
+    }
+}
+
+// ================================
 // THEME MANAGEMENT
 // ================================
 
@@ -346,6 +592,9 @@ class AccessibilityManager {
 
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all managers
+    new MouseTrailManager();
+    new ParallaxManager();
+    new MagneticEffectManager();
     new ThemeManager();
     new AnimationManager();
     new PerformanceManager();
