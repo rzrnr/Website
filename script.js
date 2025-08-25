@@ -1,4 +1,153 @@
 // ================================
+// INTRO ANIMATION MANAGER
+// ================================
+
+class IntroAnimationManager {
+    constructor() {
+        this.introOverlay = document.getElementById('intro-overlay');
+        this.introLogo = document.querySelector('.intro-logo');
+        this.mainContent = document.getElementById('main-content');
+        this.normalLogo = document.querySelector('.animated-logo');
+        this.hasPlayedIntro = sessionStorage.getItem('introPlayed') === 'true';
+        
+        this.init();
+    }
+
+    init() {
+        if (this.hasPlayedIntro) {
+            // Skip intro if already played in this session
+            this.skipIntro();
+        } else {
+            // Play intro animation
+            this.playIntro();
+        }
+    }
+
+    playIntro() {
+        // Add class to body to indicate intro is playing
+        document.body.classList.add('intro-playing');
+        
+        // Ensure intro is visible and main content is hidden
+        if (this.introOverlay) {
+            this.introOverlay.classList.remove('hidden');
+        }
+        if (this.mainContent) {
+            this.mainContent.classList.remove('show');
+        }
+
+        // Calculate exact position of final logo after a short delay
+        setTimeout(() => {
+            this.calculateFinalPosition();
+        }, 100);
+
+        // Start the intro sequence with tighter timing
+        setTimeout(() => {
+            this.startLogoAnimation();
+        }, 800); // Reduced wait time
+
+        setTimeout(() => {
+            this.animateToNormalState();
+        }, 2500); // Start transition after 2.5 seconds
+
+        setTimeout(() => {
+            this.completeIntro();
+        }, 2500); // Start completion process when animation begins
+
+        // Mark intro as played for this session
+        sessionStorage.setItem('introPlayed', 'true');
+    }
+
+    calculateFinalPosition() {
+        // Wait for DOM to be fully rendered
+        requestAnimationFrame(() => {
+            if (this.normalLogo) {
+                const rect = this.normalLogo.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                // Calculate percentage positions for responsive animation
+                const finalLeft = ((rect.left + rect.width / 2) / viewportWidth) * 100;
+                const finalTop = ((rect.top + rect.height / 2) / viewportHeight) * 100;
+                
+                // Set CSS custom properties with percentage values
+                document.documentElement.style.setProperty('--logo-final-left', `${finalLeft}%`);
+                document.documentElement.style.setProperty('--logo-final-top', `${finalTop}%`);
+            }
+        });
+    }
+
+    startLogoAnimation() {
+        // Add floating animation to intro logo with reduced duration
+        if (this.introLogo) {
+            this.introLogo.style.animation = 'introFloat 1.5s ease-in-out infinite';
+        }
+    }
+
+    animateToNormalState() {
+        // Start animating logo to its final position
+        if (this.introLogo) {
+            this.introLogo.classList.add('animate-out');
+        }
+
+        // Show main content gradually while logo is moving
+        setTimeout(() => {
+            if (this.mainContent) {
+                this.mainContent.classList.add('show');
+            }
+        }, 1200);
+    }
+
+    completeIntro() {
+        // Wait for animation to complete, then seamlessly switch logos
+        setTimeout(() => {
+            // Remove intro playing class and add complete class
+            document.body.classList.remove('intro-playing');
+            document.body.classList.add('intro-complete');
+            
+            // Hide intro overlay
+            if (this.introOverlay) {
+                this.introOverlay.classList.add('hidden');
+            }
+        }, 2000); // Reduced wait time for faster completion
+
+        // Remove intro overlay from DOM after transition
+        setTimeout(() => {
+            if (this.introOverlay && this.introOverlay.parentNode) {
+                this.introOverlay.parentNode.removeChild(this.introOverlay);
+            }
+        }, 2800); // Faster cleanup
+    }
+
+    skipIntro() {
+        // Immediately show main content and hide intro
+        document.body.classList.add('intro-complete');
+        if (this.introOverlay) {
+            this.introOverlay.style.display = 'none';
+        }
+        if (this.mainContent) {
+            this.mainContent.classList.add('show');
+        }
+    }
+}
+
+// Add CSS for intro float animation
+const introStyles = `
+    @keyframes introFloat {
+        0%, 100% {
+            transform: translate(-50%, -50%) translateY(0);
+        }
+        50% {
+            transform: translate(-50%, -50%) translateY(-8px);
+        }
+    }
+`;
+
+// Inject intro styles
+const introStyleSheet = document.createElement('style');
+introStyleSheet.textContent = introStyles;
+document.head.appendChild(introStyleSheet);
+
+// ================================
 // MOUSE TRAIL MANAGER
 // ================================
 
@@ -65,8 +214,8 @@ class MouseTrailManager {
             return;
         }
         
-        // Throttling - only create particles every 60ms
-        if (now - this.lastParticleTime < 60) {
+        // Throttling - only create particles every 30ms (more frequent)
+        if (now - this.lastParticleTime < 30) {
             this.lastMouseX = x;
             this.lastMouseY = y;
             return;
@@ -76,8 +225,8 @@ class MouseTrailManager {
         this.lastMouseX = x;
         this.lastMouseY = y;
         
-        // Create 1-2 particles based on speed
-        const particleCount = Math.min(Math.floor(speed / 40) + 1, 2);
+        // Create 2-3 particles based on speed (reduced from 3-5)
+        const particleCount = Math.min(Math.floor(speed / 30) + 2, 3);
         
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
@@ -93,8 +242,8 @@ class MouseTrailManager {
             
             // Set ALL styles inline for beautiful particles
             particle.style.position = 'fixed';
-            particle.style.left = (x + (Math.random() - 0.5) * 20) + 'px';
-            particle.style.top = (y + (Math.random() - 0.5) * 20) + 'px';
+            particle.style.left = (x + (Math.random() - 0.5) * 8) + 'px'; // Reduced spread from 20 to 8
+            particle.style.top = (y + (Math.random() - 0.5) * 8) + 'px'; // Reduced spread from 20 to 8
             particle.style.width = '6px';
             particle.style.height = '6px';
             particle.style.background = particleColor;
@@ -109,12 +258,12 @@ class MouseTrailManager {
             document.body.appendChild(particle);
             this.particles.push(particle);
             
-            // Smooth fade out animation
+            // Smooth fade out animation with even shorter lifespan
             let opacity = 1;
             let scale = 1;
             const fadeOut = setInterval(() => {
-                opacity -= 0.03;
-                scale -= 0.02;
+                opacity -= 0.12; // Even faster fade (was 0.08)
+                scale -= 0.08; // Even faster shrink (was 0.05)
                 if (opacity <= 0) {
                     clearInterval(fadeOut);
                     if (particle.parentNode) {
@@ -128,7 +277,7 @@ class MouseTrailManager {
                     particle.style.opacity = opacity;
                     particle.style.transform = `translate(-50%, -50%) scale(${scale})`;
                 }
-            }, 60); // Slower, smoother fade
+            }, 35); // Even faster animation interval (was 40ms)
         }
     }
 
@@ -681,18 +830,22 @@ class AccessibilityManager {
 // ================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize critical managers first
-    const themeManager = new ThemeManager();
-    const performanceManager = new PerformanceManager();
-    const accessibilityManager = new AccessibilityManager();
+    // Initialize intro animation first
+    const introManager = new IntroAnimationManager();
     
-    // Initialize visual effects immediately for better user experience
-    requestAnimationFrame(() => {
-        const mouseTrailManager = new MouseTrailManager();
-        const parallaxManager = new ParallaxManager();
-        const magneticManager = new MagneticEffectManager();
-        const animationManager = new AnimationManager();
-    });
+    // Initialize other managers after a short delay to let intro play
+    setTimeout(() => {
+        const themeManager = new ThemeManager();
+        const performanceManager = new PerformanceManager();
+        const accessibilityManager = new AccessibilityManager();
+        
+        requestAnimationFrame(() => {
+            const mouseTrailManager = new MouseTrailManager();
+            const parallaxManager = new ParallaxManager();
+            const magneticManager = new MagneticEffectManager();
+            const animationManager = new AnimationManager();
+        });
+    }, 100);
     
     // Add visual feedback for successful load
     setTimeout(() => {

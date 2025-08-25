@@ -9,6 +9,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
+    <!-- Intro Animation -->
+    <div class="intro-overlay" id="intro-overlay">
+        <div class="intro-logo">
+            <svg class="intro-animated-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle class="intro-logo-circle intro-logo-circle-1" cx="30" cy="50" r="8"/>
+                <circle class="intro-logo-circle intro-logo-circle-2" cx="50" cy="30" r="8"/>
+                <circle class="intro-logo-circle intro-logo-circle-3" cx="70" cy="50" r="8"/>
+                <circle class="intro-logo-circle intro-logo-circle-4" cx="50" cy="70" r="8"/>
+                <path class="intro-logo-path" d="M30,50 Q50,30 70,50 Q50,70 30,50" stroke-width="2" fill="none"/>
+            </svg>
+        </div>
+    </div>
+
     <!-- Mouse Trail Effect -->
     <div class="mouse-trail">
         <div class="trail-dot"></div>
@@ -17,7 +30,7 @@
     <!-- Particle Trail -->
     <div class="trail-particles"></div>
 
-    <main class="main">
+    <main class="main" id="main-content">
         <section class="hero">
             <div class="hero-header">
                 <div class="hero-nav">

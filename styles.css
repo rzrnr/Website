@@ -57,6 +57,163 @@ body {
 }
 
 /* ================================
+   INTRO ANIMATION
+   ================================ */
+
+.intro-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-primary);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+.intro-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.intro-logo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 2.5s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 10001;
+    opacity: 1; /* Ensure logo is visible */
+}
+
+.intro-logo.animate-out {
+    /* Move to exact final position */
+    top: var(--logo-final-top, 20%);
+    left: var(--logo-final-left, 50%);
+    transform: translate(-50%, -50%);
+}
+
+.intro-animated-logo {
+    width: 180px;
+    height: 180px;
+    transition: all 2.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.intro-logo.animate-out .intro-animated-logo {
+    width: 120px;
+    height: 120px;
+}
+
+.intro-title {
+    font-size: 3rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--text-primary);
+    margin: 0;
+    opacity: 1;
+    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.intro-logo.animate-out .intro-title {
+    font-size: 0;
+    opacity: 0;
+    margin: 0;
+}
+
+/* Intro logo circles animation */
+.intro-logo-circle {
+    fill: var(--text-primary);
+    opacity: 0;
+    transform-origin: center;
+    animation: introCircleAppear 0.6s ease-out forwards;
+}
+
+.intro-logo-circle-1 {
+    animation-delay: 0.2s;
+}
+
+.intro-logo-circle-2 {
+    animation-delay: 0.4s;
+}
+
+.intro-logo-circle-3 {
+    animation-delay: 0.6s;
+}
+
+.intro-logo-circle-4 {
+    animation-delay: 0.8s;
+}
+
+.intro-logo-path {
+    stroke: var(--text-primary);
+    fill: none;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: introPathDraw 1s ease-out 1s forwards;
+}
+
+@keyframes introCircleAppear {
+    from {
+        opacity: 0;
+        transform: scale(0);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes introPathDraw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Hide main content and logo during intro */
+.main {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.8s ease 0.4s;
+}
+
+.main.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Hide the normal logo during intro - start hidden by default */
+.animated-logo {
+    opacity: 0; /* Start hidden to prevent flash */
+    transition: opacity 0.3s ease;
+}
+
+/* Show normal logo when intro is not playing */
+body:not(.intro-playing) .animated-logo {
+    opacity: 1;
+}
+
+.intro-playing .animated-logo {
+    opacity: 0;
+}
+
+/* Show normal logo after intro */
+.intro-complete .animated-logo {
+    opacity: 1;
+}
+
+/* Hide mouse trail and particles during intro */
+.intro-playing .mouse-trail,
+.intro-playing .trail-particles {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* ================================
    MOUSE TRAIL EFFECT
    ================================ */
 
@@ -267,22 +424,12 @@ body {
     font-weight: 600;
     color: var(--text-primary);
     text-decoration: none;
-    transition: opacity 0.2s ease;
     outline: none;
+    pointer-events: none; /* Make logo non-clickable */
+    cursor: default; /* Default cursor instead of pointer */
 }
 
-.logo:hover {
-    opacity: 0.7;
-}
-
-.logo:focus {
-    outline: none;
-}
-
-.logo:focus-visible {
-    opacity: 0.7;
-    text-decoration: underline;
-}
+/* Remove all hover and focus effects for logo */
 
 .theme-toggle {
     background: none;
