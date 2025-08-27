@@ -366,7 +366,7 @@ body:not(.intro-playing) .animated-logo {
 
 :root {
     /* Light Theme (Default) - Browser Company inspired */
-    --bg-primary: #fefefe;
+    --bg-primary: #eeede7;
     --bg-secondary: #f8f8f8;
     --text-primary: #1c1c1c;
     --text-secondary: #666666;
@@ -378,7 +378,7 @@ body:not(.intro-playing) .animated-logo {
 
 [data-theme="dark"] {
     /* Dark Theme - Browser Company inspired */
-    --bg-primary: #0d0d0d;
+    --bg-primary: #222222;
     --bg-secondary: #171717;
     --text-primary: #f5f5f5;
     --text-secondary: #a3a3a3;
@@ -425,7 +425,6 @@ body:not(.intro-playing) .animated-logo {
     color: var(--text-primary);
     text-decoration: none;
     outline: none;
-    pointer-events: none; /* Make logo non-clickable */
     cursor: default; /* Default cursor instead of pointer */
 }
 
@@ -527,6 +526,8 @@ body:not(.intro-playing) .animated-logo {
     font-style: italic;
     font-family: "Times New Roman", Times, serif;
     letter-spacing: -0.02em;
+    cursor: default;
+    user-select: none;
 }
 
 .hero-main {
@@ -557,7 +558,7 @@ body:not(.intro-playing) .animated-logo {
 .animated-logo {
     width: 120px;
     height: 120px;
-    cursor: pointer;
+    cursor: default;
     transition: transform 0.3s ease;
     outline: none;
     will-change: transform;
@@ -565,7 +566,7 @@ body:not(.intro-playing) .animated-logo {
 }
 
 .animated-logo:hover {
-    transform: scale(1.1);
+    transform: none;
 }
 
 .animated-logo:focus {
@@ -637,6 +638,7 @@ body:not(.intro-playing) .animated-logo {
 .highlight {
     position: relative;
     display: inline-block;
+    cursor: default;
 }
 
 .highlight::after {
@@ -648,8 +650,8 @@ body:not(.intro-playing) .animated-logo {
     height: 2px;
     background-color: var(--accent);
     transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.3s ease;
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .highlight:hover::after {

@@ -433,7 +433,7 @@ class MagneticEffectManager {
     addMagneticEffect() {
         const magneticElements = document.querySelectorAll('.theme-toggle, .animated-logo');
         
-        magneticElements.forEach(element => {
+        magneticElements.forEach((element, index) => {
             let isHovering = false;
             let ticking = false;
             
@@ -453,7 +453,8 @@ class MagneticEffectManager {
                     const deltaX = e.clientX - centerX;
                     const deltaY = e.clientY - centerY;
                     
-                    const strength = 0.2; // Reduced for performance
+                    // Reduced strength for smoother effect
+                    const strength = element.classList.contains('animated-logo') ? 0.15 : 0.1;
                     const moveX = deltaX * strength;
                     const moveY = deltaY * strength;
                     
@@ -464,7 +465,14 @@ class MagneticEffectManager {
             
             element.addEventListener('mouseleave', () => {
                 isHovering = false;
+                // Smooth return to center with bounce effect
+                element.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
                 element.style.transform = 'translate(0, 0)';
+                
+                // Remove transition after animation completes
+                setTimeout(() => {
+                    element.style.transition = '';
+                }, 800);
             }, { passive: true });
         });
     }
@@ -525,7 +533,7 @@ class AnimationManager {
     init() {
         this.observeElements();
         this.addProjectCardEffects();
-        this.addLogoInteraction();
+        // Logo interaction removed - logo is now non-interactive
     }
 
     observeElements() {
@@ -568,6 +576,9 @@ class AnimationManager {
         const title = card.querySelector('.project-title');
         const description = card.querySelector('.project-description');
         
+        // Safety check to prevent null errors
+        if (!title || !description) return;
+        
         if (direction === 'enter') {
             title.style.transform = 'translateY(-2px)';
             description.style.transform = 'translateY(-2px)';
@@ -594,40 +605,6 @@ class AnimationManager {
     addScrollEffects() {
         // Removed scroll effects since we no longer have a fixed header
         // The integrated navigation doesn't need scroll-based styling changes
-    }
-
-    addLogoInteraction() {
-        const animatedLogo = document.querySelector('.animated-logo');
-        
-        if (animatedLogo) {
-            animatedLogo.addEventListener('click', () => {
-                // Add a fun click animation
-                const circles = animatedLogo.querySelectorAll('.logo-circle');
-                circles.forEach((circle, index) => {
-                    setTimeout(() => {
-                        circle.style.transform = 'scale(1.5)';
-                        setTimeout(() => {
-                            circle.style.transform = 'scale(1)';
-                        }, 200);
-                    }, index * 100);
-                });
-            });
-
-            // Add mouse enter/leave effects
-            animatedLogo.addEventListener('mouseenter', () => {
-                const path = animatedLogo.querySelector('.logo-path');
-                if (path) {
-                    path.style.strokeDashoffset = '0';
-                }
-            });
-
-            animatedLogo.addEventListener('mouseleave', () => {
-                const path = animatedLogo.querySelector('.logo-path');
-                if (path) {
-                    path.style.strokeDashoffset = '100';
-                }
-            });
-        }
     }
 }
 
@@ -729,10 +706,14 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(() => {
             const mouseTrailManager = new MouseTrailManager();
             const parallaxManager = new ParallaxManager();
-            const magneticManager = new MagneticEffectManager();
             const animationManager = new AnimationManager();
         });
     }, 100);
+    
+    // Initialize magnetic effect after intro is complete
+    setTimeout(() => {
+        const magneticManager = new MagneticEffectManager();
+    }, 3000); // After intro animation completes
     
     // Add visual feedback for successful load
     setTimeout(() => {

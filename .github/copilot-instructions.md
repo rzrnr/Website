@@ -34,13 +34,18 @@ setTimeout(() => {
 Themes use CSS custom properties with `data-theme` attribute:
 ```css
 [data-theme="dark"] {
-    --bg-primary: #0d0d0d;
+    --bg-primary: #222222; /* Soft medium gray, not harsh black */
     --text-primary: #f5f5f5;
+}
+[data-theme="light"] {
+    --bg-primary: #eeede7; /* Warm cream instead of pure white */
+    --text-primary: #1c1c1c;
 }
 ```
 - Theme state persisted in `localStorage`
-- Toggle handled by `ThemeManager` class
+- Toggle handled by `ThemeManager` class with magnetic effect
 - SVG icons change automatically via CSS
+- Eye-friendly colors: soft gray for dark mode, warm cream for light mode
 
 ## Component Development Patterns
 
@@ -93,6 +98,22 @@ const observerOptions = {
 
 ## Performance & Animation Patterns
 
+### Magnetic Effect System
+```javascript
+class MagneticEffectManager {
+    // Targets: .theme-toggle, .animated-logo (SVG in page center)
+    // Strength: 0.15 for logo, 0.1 for theme toggle
+    // Smooth return with bounce: cubic-bezier(0.16, 1, 0.3, 1)
+    // CRITICAL: Requires pointer-events enabled (not 'none')
+}
+```
+
+### Interactive Elements Guidelines
+- **Logo Text (header)**: Static, cursor: default, not clickable (href="javascript:void(0)")
+- **SVG Logo (center)**: Magnetic effect, cursor: default, not clickable
+- **Theme Toggle**: Magnetic effect, cursor: pointer, fully interactive
+- **Text Highlights**: Hover underline animation, cursor: default
+
 ### Mouse Effects System
 ```javascript
 class MouseTrailManager {
@@ -105,6 +126,7 @@ class MouseTrailManager {
 - Uses `will-change`, `backface-visibility: hidden` for GPU acceleration
 - Intersection Observer for scroll-triggered animations
 - Performance optimized with `contain: layout style`
+- Null-safe element queries to prevent TypeErrors
 
 ## File Management Rules
 
