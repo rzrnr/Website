@@ -7,62 +7,333 @@
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        /* Arc-inspired styles for portfolio page */
+        body {
+            background: var(--bg-primary);
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Grainy texture overlay - Arc style */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 1px 1px, var(--text-secondary) 0.15px, transparent 0),
+                radial-gradient(circle at 2px 2px, var(--text-secondary) 0.1px, transparent 0);
+            background-size: 20px 20px, 40px 40px;
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .portfolio-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .portfolio-hero {
+            text-align: center;
+            margin-bottom: 8rem;
+            padding-top: 4rem;
+        }
+        
+        .portfolio-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+        
+        .portfolio-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            line-height: 1.5;
+        }
+        
+        .project-showcase {
+            display: grid;
+            gap: 8rem;
+            margin-bottom: 8rem;
+        }
+        
+        .project-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .project-item.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .project-item:nth-child(even) {
+            direction: rtl;
+        }
+        
+        .project-content {
+            direction: ltr;
+        }
+        
+        .project-media {
+            direction: ltr;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            aspect-ratio: 16/10;
+            position: relative;
+        }
+        
+        .project-media::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent) 0%, transparent 100%);
+            opacity: 0.1;
+        }
+        
+        .project-media-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .project-number {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .project-name {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .project-description {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .project-tech {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        
+        .tech-tag {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+        }
+        
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+        
+        .project-link:hover {
+            transform: translateX(4px);
+        }
+        
+        .back-link {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 100;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-link:hover {
+            background: var(--highlight-bg);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .project-item {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+            
+            .project-item:nth-child(even) {
+                direction: ltr;
+            }
+            
+            .portfolio-container {
+                padding: 1rem;
+            }
+            
+            .back-link {
+                top: 1rem;
+                left: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <main class="main">
-        <section class="hero">
-            <!-- Header mit Design System -->
-            <div class="hero-header">
-                <nav class="hero-nav">
-                    <div class="nav-left">
-                        <a href="../../index-modular.html" class="logo">Gugli Studios</a>
-                    </div>
-                    <div class="nav-right">
-                        <button class="theme-toggle" id="theme-toggle" aria-label="Theme umschalten">
-                            <svg class="theme-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <circle class="sun" cx="12" cy="12" r="5"/>
-                                <path class="sun-rays" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-                                <path class="moon" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </nav>
-            </div>
-            
-            <!-- Portfolio Content -->
-            <div class="hero-content">
-                <div class="hero-main">
-                    <!-- Zentrales Logo -->
-                    <div class="logo-animation" style="margin-bottom: 2rem;">
-                        <svg class="animated-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <circle class="logo-circle logo-circle-1" cx="30" cy="50" r="8"/>
-                            <circle class="logo-circle logo-circle-2" cx="50" cy="30" r="8"/>
-                            <circle class="logo-circle logo-circle-3" cx="70" cy="50" r="8"/>
-                            <circle class="logo-circle logo-circle-4" cx="50" cy="70" r="8"/>
-                            <path class="logo-path" d="M30,50 Q50,30 70,50 Q50,70 30,50" stroke-width="2" fill="none"/>
-                        </svg>
-                    </div>
-                    
-                    <!-- Portfolio Text -->
-                    <h1 class="hero-title" style="text-align: center; margin-bottom: 1.5rem;">
-                        Portfolio
-                    </h1>
-                    
-                    <p style="text-align: center; font-size: 1.2rem; opacity: 0.8; max-width: 600px; margin: 0 auto 3rem auto; line-height: 1.6;">
-                        Hier werden unsere besten Projekte und Arbeiten präsentiert. 
-                        Von innovativen Web-Anwendungen bis hin zu kreativen Design-Lösungen.
+    <a href="../../index.html" class="back-link">← Zurück</a>
+    
+    <div class="portfolio-container">
+        <div class="portfolio-hero">
+            <h1 class="portfolio-title">Portfolio</h1>
+            <p class="portfolio-subtitle">
+                Eine Auswahl unserer besten Arbeiten. Von innovativen Web-Anwendungen 
+                bis hin zu kreativen Design-Lösungen.
+            </p>
+        </div>
+        
+        <div class="project-showcase">
+            <div class="project-item" data-animate="fade-up">
+                <div class="project-content">
+                    <div class="project-number">01</div>
+                    <h2 class="project-name">Modernisierung einer E-Commerce Plattform</h2>
+                    <p class="project-description">
+                        Komplette Neugestaltung einer veralteten Online-Shopping-Plattform 
+                        mit Fokus auf Benutzerfreundlichkeit und Performance. 
+                        Resultierte in 40% höherer Conversion-Rate.
                     </p>
-                    
-                    <!-- Zurück-Link -->
-                    <div style="text-align: center;">
-                        <a href="../../index-modular.html" class="footer-link">← Zurück zur Startseite</a>
+                    <div class="project-tech">
+                        <span class="tech-tag">React</span>
+                        <span class="tech-tag">Node.js</span>
+                        <span class="tech-tag">PostgreSQL</span>
+                        <span class="tech-tag">Stripe</span>
+                    </div>
+                    <a href="#" class="project-link">
+                        Projekt ansehen →
+                    </a>
+                </div>
+                <div class="project-media">
+                    <div class="project-media-placeholder">
+                        E-Commerce Dashboard Preview
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+            
+            <div class="project-item" data-animate="fade-up">
+                <div class="project-content">
+                    <div class="project-number">02</div>
+                    <h2 class="project-name">KI-basierte Content-Management-Suite</h2>
+                    <p class="project-description">
+                        Entwicklung einer intelligenten CMS-Lösung mit automatischer 
+                        Content-Optimierung und KI-gestützter SEO-Analyse. 
+                        Spart Redakteuren bis zu 60% ihrer Zeit.
+                    </p>
+                    <div class="project-tech">
+                        <span class="tech-tag">Vue.js</span>
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">TensorFlow</span>
+                        <span class="tech-tag">MongoDB</span>
+                    </div>
+                    <a href="#" class="project-link">
+                        Projekt ansehen →
+                    </a>
+                </div>
+                <div class="project-media">
+                    <div class="project-media-placeholder">
+                        CMS Interface Preview
+                    </div>
+                </div>
+            </div>
+            
+            <div class="project-item" data-animate="fade-up">
+                <div class="project-content">
+                    <div class="project-number">03</div>
+                    <h2 class="project-name">Interactive Data Visualization Platform</h2>
+                    <p class="project-description">
+                        Entwicklung einer interaktiven Plattform zur Visualisierung 
+                        komplexer Datensätze für ein Fintech-Startup. 
+                        Ermöglicht Echtzeit-Analysen und benutzerdefinierte Dashboards.
+                    </p>
+                    <div class="project-tech">
+                        <span class="tech-tag">D3.js</span>
+                        <span class="tech-tag">TypeScript</span>
+                        <span class="tech-tag">WebSocket</span>
+                        <span class="tech-tag">Redis</span>
+                    </div>
+                    <a href="#" class="project-link">
+                        Projekt ansehen →
+                    </a>
+                </div>
+                <div class="project-media">
+                    <div class="project-media-placeholder">
+                        Data Visualization Preview
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Theme Toggle Funktionalität -->
-    <script src="../../assets/js/main.js"></script>
+    <script>
+        // Smooth scroll animations - Arc style
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all project items
+        document.querySelectorAll('.project-item').forEach(item => {
+            observer.observe(item);
+        });
+        
+        // Theme support
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        
+        // Smooth scrolling
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
 </body>
 </html>

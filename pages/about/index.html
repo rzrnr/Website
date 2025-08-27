@@ -7,62 +7,366 @@
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        /* Arc-inspired styles for about page */
+        body {
+            background: var(--bg-primary);
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        /* Grainy texture overlay - Arc style */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 1px 1px, var(--text-secondary) 0.15px, transparent 0),
+                radial-gradient(circle at 2px 2px, var(--text-secondary) 0.1px, transparent 0);
+            background-size: 20px 20px, 40px 40px;
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .about-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .about-hero {
+            text-align: center;
+            margin-bottom: 8rem;
+            padding-top: 4rem;
+        }
+        
+        .about-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+        
+        .about-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+        
+        .content-section {
+            margin-bottom: 6rem;
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .content-section.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .section-text {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+        
+        .highlight-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 3rem;
+            margin: 4rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .highlight-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent) 0%, transparent 100%);
+            opacity: 0.05;
+        }
+        
+        .highlight-text {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            font-weight: 300;
+            line-height: 1.4;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+        
+        .value-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .value-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+        
+        .value-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .value-title {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        
+        .value-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .team-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4rem;
+            margin: 6rem 0;
+            text-align: center;
+        }
+        
+        .team-title {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+        
+        .team-text {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin: 8rem 0 4rem;
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+        
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .back-link {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 100;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-link:hover {
+            background: var(--highlight-bg);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .about-container {
+                padding: 1rem;
+            }
+            
+            .back-link {
+                top: 1rem;
+                left: 1rem;
+            }
+            
+            .highlight-box,
+            .team-section {
+                padding: 2rem;
+            }
+            
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <main class="main">
-        <section class="hero">
-            <!-- Header mit Design System -->
-            <div class="hero-header">
-                <nav class="hero-nav">
-                    <div class="nav-left">
-                        <a href="../../index-modular.html" class="logo">Gugli Studios</a>
-                    </div>
-                    <div class="nav-right">
-                        <button class="theme-toggle" id="theme-toggle" aria-label="Theme umschalten">
-                            <svg class="theme-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <circle class="sun" cx="12" cy="12" r="5"/>
-                                <path class="sun-rays" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-                                <path class="moon" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </nav>
-            </div>
-            
-            <!-- Über uns Content -->
-            <div class="hero-content">
-                <div class="hero-main">
-                    <!-- Zentrales Logo -->
-                    <div class="logo-animation" style="margin-bottom: 2rem;">
-                        <svg class="animated-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <circle class="logo-circle logo-circle-1" cx="30" cy="50" r="8"/>
-                            <circle class="logo-circle logo-circle-2" cx="50" cy="30" r="8"/>
-                            <circle class="logo-circle logo-circle-3" cx="70" cy="50" r="8"/>
-                            <circle class="logo-circle logo-circle-4" cx="50" cy="70" r="8"/>
-                            <path class="logo-path" d="M30,50 Q50,30 70,50 Q50,70 30,50" stroke-width="2" fill="none"/>
-                        </svg>
-                    </div>
-                    
-                    <!-- Über uns Text -->
-                    <h1 class="hero-title" style="text-align: center; margin-bottom: 1.5rem;">
-                        Über uns
-                    </h1>
-                    
-                    <p style="text-align: center; font-size: 1.2rem; opacity: 0.8; max-width: 600px; margin: 0 auto 3rem auto; line-height: 1.6;">
-                        Wir sind Gugli Studios - ein kreatives Team, das innovative digitale Erlebnisse erschafft. 
-                        Mit Leidenschaft für Design und Technologie entwickeln wir einzigartige Web-Lösungen.
+    <a href="../../index.html" class="back-link">← Zurück</a>
+    
+    <div class="about-container">
+        <div class="about-hero">
+            <h1 class="about-title">Über uns</h1>
+            <p class="about-subtitle">
+                Wir sind Gugli Studios – ein kreatives Team, das innovative digitale Erlebnisse erschafft. 
+                Mit Leidenschaft für Design und Technologie entwickeln wir einzigartige Web-Lösungen.
+            </p>
+        </div>
+        
+        <div class="content-section" data-animate="fade-up">
+            <h2 class="section-title">Unsere Geschichte</h2>
+            <p class="section-text">
+                Gegründet aus der Überzeugung, dass großartige Software das Leben verbessern kann, 
+                haben wir uns darauf spezialisiert, komplexe Probleme in elegante, 
+                benutzerfreundliche Lösungen zu verwandeln.
+            </p>
+            <p class="section-text">
+                Seit unseren Anfängen haben wir über 50 Projekte für Startups und etablierte 
+                Unternehmen erfolgreich umgesetzt, von einfachen Websites bis hin zu 
+                komplexen Unternehmensanwendungen.
+            </p>
+        </div>
+        
+        <div class="highlight-box">
+            <p class="highlight-text">
+                "Großartige Software entsteht nicht zufällig. Sie ist das Ergebnis von 
+                sorgfältiger Planung, durchdachtem Design und leidenschaftlicher Umsetzung."
+            </p>
+        </div>
+        
+        <div class="content-section" data-animate="fade-up">
+            <h2 class="section-title">Unsere Werte</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">🎯</div>
+                    <h3 class="value-title">Zielorientiert</h3>
+                    <p class="value-text">
+                        Jedes Projekt beginnt mit einem klaren Verständnis Ihrer Ziele. 
+                        Wir entwickeln Lösungen, die messbare Ergebnisse liefern.
                     </p>
-                    
-                    <!-- Zurück-Link -->
-                    <div style="text-align: center;">
-                        <a href="../../index-modular.html" class="footer-link">← Zurück zur Startseite</a>
-                    </div>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🚀</div>
+                    <h3 class="value-title">Innovation</h3>
+                    <p class="value-text">
+                        Wir bleiben am Puls der Technologie und setzen modernste Tools ein, 
+                        um zukunftssichere Lösungen zu schaffen.
+                    </p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🤝</div>
+                    <h3 class="value-title">Partnerschaft</h3>
+                    <p class="value-text">
+                        Ihre Erfolge sind unsere Erfolge. Wir arbeiten eng mit Ihnen zusammen 
+                        und bleiben auch nach dem Launch Ihr verlässlicher Partner.
+                    </p>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+        
+        <div class="team-section">
+            <h2 class="team-title">Ein Team, eine Vision</h2>
+            <p class="team-text">
+                Unser multidisziplinäres Team vereint Designer, Entwickler und Strategen, 
+                die alle dasselbe Ziel verfolgen: außergewöhnliche digitale Erlebnisse zu schaffen, 
+                die Benutzer begeistern und Geschäfte voranbringen.
+            </p>
+        </div>
+        
+        <div class="cta-section">
+            <h2 class="cta-title">Bereit für Ihr nächstes Projekt?</h2>
+            <a href="../../index.html#contact" class="cta-button">
+                Projekt starten →
+            </a>
+        </div>
+    </div>
 
-    <!-- Theme Toggle Funktionalität -->
-    <script src="../../assets/js/main.js"></script>
+    <script>
+        // Smooth scroll animations - Arc style
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all sections
+        document.querySelectorAll('.content-section').forEach(section => {
+            observer.observe(section);
+        });
+        
+        // Theme support
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        
+        // Smooth scrolling
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
 </body>
 </html>
