@@ -5,12 +5,11 @@
 This is a **modular Browser Company-inspired portfolio website** with a sophisticated intro animation system and theme management. The architecture prioritizes visual elegance, smooth animations, and component reusability.
 
 ### Core Structure
-- **`index-modular.html`** - Main page with integrated header navigation (no separate header file)
-- **`index.html`** - Original backup (preserve for fallback)
+- **`index.html`** - Main page with integrated header navigation (no separate header file)
 - **`assets/css/main.css`** - Monolithic stylesheet with all visual components
 - **`assets/js/main.js`** - Monolithic JavaScript with all functionality
 - **`assets/js/design-system.js`** - Reusable components for new pages
-- **`pages/`** - Simple template pages using the design system
+- **`pages/`** - Arc-inspired template pages with modern design patterns
 
 ## Critical Animation System
 
@@ -47,21 +46,50 @@ Themes use CSS custom properties with `data-theme` attribute:
 
 ### Adding New Pages
 1. Create directory under `pages/` 
-2. Use this exact template structure:
+2. Use Arc-inspired template structure:
 ```html
 <link rel="stylesheet" href="../../assets/css/main.css">
-<script src="../../assets/js/main.js"></script>
+<!-- Arc-style grainy background -->
+body::before {
+    background-image: radial-gradient(circle at 1px 1px, var(--text-secondary) 0.15px, transparent 0);
+    opacity: 0.03;
+}
 ```
 3. **Always** use relative paths: `../../` from `pages/subdirectory/`
-4. Include theme toggle and logo from `design-system.js`
+4. Include scroll animations with `cubic-bezier(0.16, 1, 0.3, 1)` for Arc-style motion
 
 ### Navigation Integration
 - Main page navigation is **embedded in hero section**, not separate component
-- Project cards and footer links connect to pages via href changes:
+- Project cards navigate to real pages via href:
 ```html
 <a href="pages/portfolio/" class="project-card">
 <a href="pages/about/" class="footer-link">ÜBER UNS</a>
 ```
+- **No preventDefault()** - cards use normal navigation flow
+
+## Arc-Inspired Design Patterns
+
+### Visual Design System
+- **Grainy texture overlay**: Subtle radial-gradient backgrounds for texture
+- **Large typography**: `clamp(3rem, 8vw, 6rem)` for responsive hero titles
+- **Generous spacing**: 4-8rem margins between sections
+- **Glassmorphism**: `backdrop-filter: blur(10px)` for floating elements
+
+### Animation Philosophy
+```javascript
+// Arc-style smooth animations
+transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+// Scroll-triggered reveals
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+};
+```
+
+### Content Structure Patterns
+- **Featured content**: Gradient overlays for highlighting
+- **Card-based layouts**: Hover effects with `translateY(-4px)`
+- **Progressive disclosure**: Content reveals on scroll intersection
 
 ## Performance & Animation Patterns
 

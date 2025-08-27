@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Gugli Studios</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        /* Arc-inspired styles for blog page */
+        body {
+            background: var(--bg-primary);
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Grainy texture overlay - Arc style */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 1px 1px, var(--text-secondary) 0.15px, transparent 0),
+                radial-gradient(circle at 2px 2px, var(--text-secondary) 0.1px, transparent 0);
+            background-size: 20px 20px, 40px 40px;
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .blog-container {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .blog-hero {
+            text-align: center;
+            margin-bottom: 6rem;
+            padding-top: 4rem;
+        }
+        
+        .blog-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+        
+        .blog-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+        
+        .blog-posts {
+            display: grid;
+            gap: 4rem;
+            margin-bottom: 6rem;
+        }
+        
+        .blog-post {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 3rem;
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .blog-post::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent) 0%, transparent 100%);
+            opacity: 0.05;
+        }
+        
+        .blog-post.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .blog-post:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+        
+        .post-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .post-date {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+        
+        .post-category {
+            background: var(--highlight-bg);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        
+        .post-title {
+            font-size: 2rem;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .post-excerpt {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .post-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .post-link:hover {
+            transform: translateX(4px);
+        }
+        
+        .featured-post {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--bg-secondary) 100%);
+            color: white;
+            border: none;
+        }
+        
+        .featured-post .post-title,
+        .featured-post .post-link {
+            color: white;
+        }
+        
+        .featured-post .post-excerpt {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .featured-post .post-category {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+        
+        .back-link {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 100;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-link:hover {
+            background: var(--highlight-bg);
+            transform: translateY(-2px);
+        }
+        
+        .newsletter-signup {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            margin: 4rem 0;
+        }
+        
+        .newsletter-title {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+        
+        .newsletter-text {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .newsletter-form {
+            display: flex;
+            gap: 1rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .newsletter-input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+        }
+        
+        .newsletter-button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .newsletter-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .blog-container {
+                padding: 1rem;
+            }
+            
+            .back-link {
+                top: 1rem;
+                left: 1rem;
+            }
+            
+            .blog-post {
+                padding: 2rem;
+            }
+            
+            .newsletter-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Zurück</a>
+    
+    <div class="blog-container">
+        <div class="blog-hero">
+            <h1 class="blog-title">Blog</h1>
+            <p class="blog-subtitle">
+                Einblicke in unsere Arbeit, Gedanken zu Design und Technologie, 
+                und was uns als kreatives Team bewegt.
+            </p>
+        </div>
+        
+        <div class="blog-posts">
+            <article class="blog-post featured-post" data-animate="fade-up">
+                <div class="post-meta">
+                    <span class="post-date">27. August 2025</span>
+                    <span class="post-category">Featured</span>
+                </div>
+                <h2 class="post-title">Die Zukunft des Webdesigns: Minimalismus trifft Interaktivität</h2>
+                <p class="post-excerpt">
+                    Wie wir bei Gugli Studios moderne Designprinzipien mit benutzerfreundlichen 
+                    Interfaces kombinieren. Ein tiefer Einblick in unseren kreativen Prozess und 
+                    die Tools, die unsere Arbeit prägen.
+                </p>
+                <a href="#" class="post-link">
+                    Weiterlesen →
+                </a>
+            </article>
+            
+            <article class="blog-post" data-animate="fade-up">
+                <div class="post-meta">
+                    <span class="post-date">15. August 2025</span>
+                    <span class="post-category">Technologie</span>
+                </div>
+                <h2 class="post-title">Performance-Optimierung: Warum jede Millisekunde zählt</h2>
+                <p class="post-excerpt">
+                    Website-Performance ist entscheidend für Nutzererfahrung und SEO. 
+                    Wir zeigen konkrete Strategien und Tools, mit denen wir Ladezeiten 
+                    um bis zu 70% reduziert haben.
+                </p>
+                <a href="#" class="post-link">
+                    Weiterlesen →
+                </a>
+            </article>
+            
+            <article class="blog-post" data-animate="fade-up">
+                <div class="post-meta">
+                    <span class="post-date">08. August 2025</span>
+                    <span class="post-category">Design</span>
+                </div>
+                <h2 class="post-title">Browser Company und die Renaissance des Webdesigns</h2>
+                <p class="post-excerpt">
+                    Wie Arc Browser neue Standards setzt und was wir Designer davon lernen können. 
+                    Eine Analyse der Designprinzipien, die das moderne Web prägen.
+                </p>
+                <a href="#" class="post-link">
+                    Weiterlesen →
+                </a>
+            </article>
+            
+            <article class="blog-post" data-animate="fade-up">
+                <div class="post-meta">
+                    <span class="post-date">01. August 2025</span>
+                    <span class="post-category">Workflow</span>
+                </div>
+                <h2 class="post-title">Unser Design System: Konsistenz bei maximaler Flexibilität</h2>
+                <p class="post-excerpt">
+                    Einblick in die Entwicklung unseres modularen Design Systems. 
+                    Wie wir Wiederverwendbarkeit und Kreativität in Einklang bringen.
+                </p>
+                <a href="#" class="post-link">
+                    Weiterlesen →
+                </a>
+            </article>
+        </div>
+        
+        <div class="newsletter-signup">
+            <h3 class="newsletter-title">Bleib auf dem Laufenden</h3>
+            <p class="newsletter-text">
+                Erhalte unsere neuesten Artikel und Einblicke direkt in dein Postfach. 
+                Kein Spam, nur wertvollen Content.
+            </p>
+            <form class="newsletter-form">
+                <input type="email" class="newsletter-input" placeholder="deine@email.com" required>
+                <button type="submit" class="newsletter-button">Abonnieren</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scroll animations - Arc style
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all blog posts
+        document.querySelectorAll('.blog-post').forEach(post => {
+            observer.observe(post);
+        });
+        
+        // Theme support
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        
+        // Smooth scrolling
+        document.documentElement.style.scrollBehavior = 'smooth';
+        
+        // Newsletter form
+        document.querySelector('.newsletter-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target.querySelector('.newsletter-input').value;
+            alert(`Danke! Wir haben ${email} zu unserem Newsletter hinzugefügt.`);
+            e.target.reset();
+        });
+    </script>
+</body>
+</html>

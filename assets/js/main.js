@@ -578,62 +578,17 @@ class AnimationManager {
     }
 
     addClickEffect(e) {
-        // Prevent default for demo purposes
-        e.preventDefault();
-        
+        // Allow normal navigation to proceed
         const card = e.currentTarget;
-        const projectType = card.dataset.project;
         
         // Add a subtle click animation
         card.style.transform = 'translateY(-4px) scale(0.98)';
         
         setTimeout(() => {
             card.style.transform = 'translateY(-4px) scale(1)';
-            
-            // Show a message for now (replace with actual navigation later)
-            this.showProjectMessage(projectType);
         }, 150);
-    }
-
-    showProjectMessage(projectType) {
-        const message = projectType === 'portfolio' 
-            ? 'Portfolio-Bereich wird bald verfügbar sein!' 
-            : 'Blog-Bereich wird bald verfügbar sein!';
-            
-        // Create a temporary notification
-        const notification = document.createElement('div');
-        notification.textContent = message;
-        notification.style.cssText = `
-            position: fixed;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            box-shadow: 0 10px 30px var(--shadow);
-            z-index: 10000;
-            font-size: 0.875rem;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        `;
         
-        document.body.appendChild(notification);
-        
-        // Animate in
-        setTimeout(() => {
-            notification.style.opacity = '1';
-        }, 10);
-        
-        // Remove after 3 seconds
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
-        }, 3000);
+        // Navigation happens normally via href
     }
 
     addScrollEffects() {
