@@ -21,6 +21,13 @@ class IntroAnimationManager {
             // Play intro animation
             this.playIntro();
         }
+        
+        // Recalculate position on window resize (for responsive behavior)
+        window.addEventListener('resize', () => {
+            if (!this.hasPlayedIntro) {
+                this.calculateFinalPosition();
+            }
+        });
     }
 
     playIntro() {
@@ -38,6 +45,10 @@ class IntroAnimationManager {
         // Calculate exact position of final logo after a short delay
         setTimeout(() => {
             this.calculateFinalPosition();
+            // Recalculate after a moment to ensure layout is stable
+            setTimeout(() => {
+                this.calculateFinalPosition();
+            }, 200);
         }, 100);
 
         // Start the intro sequence with tighter timing
@@ -58,21 +69,28 @@ class IntroAnimationManager {
     }
 
     calculateFinalPosition() {
-        // Wait for DOM to be fully rendered
+        // Wait for DOM to be fully rendered and layout to stabilize
         requestAnimationFrame(() => {
-            if (this.normalLogo) {
-                const rect = this.normalLogo.getBoundingClientRect();
-                const viewportWidth = window.innerWidth;
-                const viewportHeight = window.innerHeight;
-                
-                // Calculate percentage positions for responsive animation
-                const finalLeft = ((rect.left + rect.width / 2) / viewportWidth) * 100;
-                const finalTop = ((rect.top + rect.height / 2) / viewportHeight) * 100;
-                
-                // Set CSS custom properties with percentage values
-                document.documentElement.style.setProperty('--logo-final-left', `${finalLeft}%`);
-                document.documentElement.style.setProperty('--logo-final-top', `${finalTop}%`);
-            }
+            requestAnimationFrame(() => {
+                if (this.normalLogo) {
+                    const rect = this.normalLogo.getBoundingClientRect();
+                    const parentRect = this.normalLogo.parentElement.getBoundingClientRect();
+                    
+                    // Get the center point of the logo relative to viewport
+                    const centerX = rect.left + (rect.width / 2);
+                    const centerY = rect.top + (rect.height / 2);
+                    
+                    // Convert to percentage of viewport
+                    const finalLeft = (centerX / window.innerWidth) * 100;
+                    const finalTop = (centerY / window.innerHeight) * 100;
+                    
+                    // Set CSS custom properties with precise positioning
+                    document.documentElement.style.setProperty('--logo-final-left', `${finalLeft}%`);
+                    document.documentElement.style.setProperty('--logo-final-top', `${finalTop}%`);
+                    
+                    console.log(`Logo position: ${finalLeft.toFixed(2)}%, ${finalTop.toFixed(2)}%`);
+                }
+            });
         });
     }
 
@@ -659,91 +677,6 @@ class AnimationManager {
 }
 
 // ================================
-// PERFORMANCE OPTIMIZATIONS
-// ================================
-
-class PerformanceManager {
-    constructor() {
-        this.init();
-    }
-
-    init() {
-        this.preloadCriticalResources();
-        this.optimizeImages();
-        this.addServiceWorker();
-        this.setupIntersectionObserver();
-    }
-
-    setupIntersectionObserver() {
-        // Optimize animations based on visibility
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const element = entry.target;
-                if (entry.isIntersecting) {
-                    element.style.animationPlayState = 'running';
-                } else {
-                    element.style.animationPlayState = 'paused';
-                }
-            });
-        }, { threshold: 0.1 });
-
-        // Observe animated elements
-        const animatedElements = document.querySelectorAll('.animated-logo, .trail-dot, .status-dot');
-        animatedElements.forEach(el => observer.observe(el));
-    }
-
-    preloadCriticalResources() {
-        // Preload critical font weights only
-        const criticalFonts = [
-            'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2'
-        ];
-        
-        criticalFonts.forEach(fontUrl => {
-            const link = document.createElement('link');
-            link.rel = 'preload';
-            link.as = 'font';
-            link.type = 'font/woff2';
-            link.crossOrigin = 'anonymous';
-            link.href = fontUrl;
-            document.head.appendChild(link);
-        });
-    }
-
-    optimizeImages() {
-        // Enhanced lazy loading with reduced threshold
-        if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                            img.classList.remove('lazy');
-                            imageObserver.unobserve(img);
-                        }
-                    }
-                });
-            }, { rootMargin: '50px' }); // Reduced margin for better performance
-
-            const lazyImages = document.querySelectorAll('img[data-src]');
-            lazyImages.forEach(img => imageObserver.observe(img));
-        }
-    }
-
-    addServiceWorker() {
-        // Service worker for caching with performance focus
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .catch(() => {
-                        // Silently fail to avoid console errors
-                    });
-            });
-        }
-    }
-}
-
-// ================================
 // ACCESSIBILITY ENHANCEMENTS
 // ================================
 
@@ -836,7 +769,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize other managers after a short delay to let intro play
     setTimeout(() => {
         const themeManager = new ThemeManager();
-        const performanceManager = new PerformanceManager();
         const accessibilityManager = new AccessibilityManager();
         
         requestAnimationFrame(() => {

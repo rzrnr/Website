@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Gugli Studios</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+    <main class="main">
+        <section class="hero">
+            <!-- Header mit Design System -->
+            <div class="hero-header">
+                <nav class="hero-nav">
+                    <div class="nav-left">
+                        <a href="../../index-modular.html" class="logo">Gugli Studios</a>
+                    </div>
+                    <div class="nav-right">
+                        <button class="theme-toggle" id="theme-toggle" aria-label="Theme umschalten">
+                            <svg class="theme-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <circle class="sun" cx="12" cy="12" r="5"/>
+                                <path class="sun-rays" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                                <path class="moon" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </nav>
+            </div>
+            
+            <!-- Portfolio Content -->
+            <div class="hero-content">
+                <div class="hero-main">
+                    <!-- Zentrales Logo -->
+                    <div class="logo-animation" style="margin-bottom: 2rem;">
+                        <svg class="animated-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <circle class="logo-circle logo-circle-1" cx="30" cy="50" r="8"/>
+                            <circle class="logo-circle logo-circle-2" cx="50" cy="30" r="8"/>
+                            <circle class="logo-circle logo-circle-3" cx="70" cy="50" r="8"/>
+                            <circle class="logo-circle logo-circle-4" cx="50" cy="70" r="8"/>
+                            <path class="logo-path" d="M30,50 Q50,30 70,50 Q50,70 30,50" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Portfolio Text -->
+                    <h1 class="hero-title" style="text-align: center; margin-bottom: 1.5rem;">
+                        Portfolio
+                    </h1>
+                    
+                    <p style="text-align: center; font-size: 1.2rem; opacity: 0.8; max-width: 600px; margin: 0 auto 3rem auto; line-height: 1.6;">
+                        Hier werden unsere besten Projekte und Arbeiten präsentiert. 
+                        Von innovativen Web-Anwendungen bis hin zu kreativen Design-Lösungen.
+                    </p>
+                    
+                    <!-- Zurück-Link -->
+                    <div style="text-align: center;">
+                        <a href="../../index-modular.html" class="footer-link">← Zurück zur Startseite</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Theme Toggle Funktionalität -->
+    <script src="../../assets/js/main.js"></script>
+</body>
+</html>

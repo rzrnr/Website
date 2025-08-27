@@ -1,0 +1,237 @@
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+
+/* Base: Mobile First (0px - 767px) */
+/* All base styles are mobile-first */
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) {
+    .container {
+        padding: 0 var(--space-xl);
+    }
+    
+    /* Typography adjustments */
+    .hero-title {
+        font-size: var(--font-size-4xl);
+    }
+    
+    /* Grid adjustments */
+    .project-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-2xl);
+    }
+    
+    /* Navigation */
+    .footer-links {
+        gap: var(--space-xl);
+    }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+    .container {
+        padding: 0 var(--space-2xl);
+    }
+    
+    /* Typography */
+    .hero-title {
+        font-size: var(--font-size-5xl);
+    }
+    
+    /* Larger spacing */
+    .hero-content {
+        padding: var(--space-3xl) 0;
+    }
+    
+    .logo-animation {
+        margin-bottom: var(--space-3xl);
+    }
+}
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+    /* Maximum container width is already set via CSS custom property */
+    
+    /* Even larger typography if needed */
+    .hero-title {
+        font-size: clamp(var(--font-size-4xl), 4vw, 4rem);
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Adjustments for retina displays */
+    .logo-animation svg,
+    .theme-icon {
+        image-rendering: -webkit-optimize-contrast;
+    }
+}
+
+/* Landscape Orientation (Mobile) */
+@media (max-width: 767px) and (orientation: landscape) {
+    .hero {
+        min-height: auto;
+    }
+    
+    .hero-content {
+        padding: var(--space-lg) 0;
+    }
+    
+    .hero-title {
+        font-size: var(--font-size-2xl);
+        margin-bottom: var(--space-lg);
+    }
+    
+    .logo-animation {
+        width: 80px;
+        height: 80px;
+        margin-bottom: var(--space-lg);
+    }
+}
+
+/* Print Styles */
+@media print {
+    * {
+        background: transparent !important;
+        color: black !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+    
+    .mouse-trail,
+    .trail-particles,
+    .theme-toggle,
+    .intro-overlay {
+        display: none !important;
+    }
+    
+    .hero-footer {
+        border-top: 1px solid #000;
+        margin-top: var(--space-lg);
+    }
+    
+    .project-card {
+        border: 1px solid #000;
+        break-inside: avoid;
+    }
+    
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .mouse-trail,
+    .trail-particles {
+        display: none;
+    }
+    
+    .hover-lift:hover {
+        transform: none;
+    }
+    
+    .project-card:hover {
+        transform: none;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .project-card {
+        border: 2px solid;
+    }
+    
+    .btn {
+        border: 2px solid;
+    }
+    
+    .theme-toggle {
+        border: 2px solid;
+    }
+}
+
+/* Dark Mode Preference */
+@media (prefers-color-scheme: dark) {
+    /* This is handled by the ThemeManager and CSS custom properties */
+    /* But we can add any dark-mode specific responsive adjustments here */
+}
+
+/* Very Small Devices */
+@media (max-width: 320px) {
+    .container {
+        padding: 0 var(--space-md);
+    }
+    
+    .hero-title {
+        font-size: var(--font-size-xl);
+    }
+    
+    .project-grid {
+        margin-top: var(--space-xl);
+    }
+    
+    .footer-links {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+    
+    .logo-animation {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+/* Ultra-wide Screens */
+@media (min-width: 1600px) {
+    .hero-content {
+        padding: var(--space-3xl) 0 var(--space-3xl);
+    }
+    
+    .container {
+        max-width: 1400px;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Remove hover effects on touch devices */
+    .project-card:hover,
+    .btn:hover,
+    .footer-link:hover {
+        transform: none;
+        box-shadow: initial;
+    }
+    
+    /* Larger touch targets */
+    .btn,
+    .theme-toggle,
+    .footer-link {
+        min-height: 48px;
+        padding: var(--space-md);
+    }
+    
+    .project-card {
+        min-height: 120px;
+    }
+}
+
+/* Hover-capable Devices */
+@media (hover: hover) and (pointer: fine) {
+    /* Enhanced hover effects for devices with precise pointers */
+    .project-card:hover {
+        transform: translateY(-8px);
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-6px);
+    }
+}

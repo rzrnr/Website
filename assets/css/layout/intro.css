@@ -1,0 +1,144 @@
+/* ================================
+   INTRO ANIMATION LAYOUT
+   ================================ */
+
+.intro-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-primary);
+    z-index: var(--z-intro);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity var(--transition-slow), visibility var(--transition-slow);
+}
+
+.intro-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.intro-logo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 2.5s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: calc(var(--z-intro) + 1);
+    opacity: 1;
+}
+
+.intro-logo.animate-out {
+    top: var(--logo-final-top, 20%);
+    left: var(--logo-final-left, 50%);
+    transform: translate(-50%, -50%);
+}
+
+.intro-animated-logo {
+    width: 180px;
+    height: 180px;
+    transition: all 2.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.intro-logo.animate-out .intro-animated-logo {
+    width: 120px;
+    height: 120px;
+}
+
+.intro-title {
+    font-size: var(--font-size-5xl);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--text-primary);
+    margin: 0;
+    opacity: 1;
+    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.intro-logo.animate-out .intro-title {
+    font-size: 0;
+    opacity: 0;
+    margin: 0;
+}
+
+/* Intro logo circles animation */
+.intro-logo-circle {
+    fill: var(--text-primary);
+    opacity: 0;
+    transform-origin: center;
+    animation: introCircleAppear 0.6s ease-out forwards;
+}
+
+.intro-logo-circle-1 { animation-delay: 0.2s; }
+.intro-logo-circle-2 { animation-delay: 0.4s; }
+.intro-logo-circle-3 { animation-delay: 0.6s; }
+.intro-logo-circle-4 { animation-delay: 0.8s; }
+
+.intro-logo-path {
+    stroke: var(--text-primary);
+    fill: none;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: introPathDraw 1s ease-out 1s forwards;
+}
+
+@keyframes introCircleAppear {
+    from {
+        opacity: 0;
+        transform: scale(0);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes introPathDraw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes introFloat {
+    0%, 100% {
+        transform: translate(-50%, -50%) translateY(0);
+    }
+    50% {
+        transform: translate(-50%, -50%) translateY(-8px);
+    }
+}
+
+/* Hide main content during intro */
+.main {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all var(--transition-slow) 0.4s;
+}
+
+.main.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Logo visibility states */
+.animated-logo {
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+.intro-playing .animated-logo {
+    opacity: 0;
+}
+
+body:not(.intro-playing) .animated-logo {
+    opacity: 1;
+}
+
+.intro-complete .animated-logo {
+    opacity: 1;
+}
