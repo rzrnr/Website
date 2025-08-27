@@ -8,7 +8,19 @@
     box-sizing: border-box;
 }
 
-/* Critical rendering optimizations */
+/* Critical rendering @keyframes introLetterAppear {
+    0% { 
+        opacity: 0; 
+        transform: scale(0);
+    }
+    60% {
+        transform: scale(1.1);
+    }
+    100% { 
+        opacity: 1; 
+        transform: scale(1);
+    }
+}ons */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -125,52 +137,75 @@ body {
     margin: 0;
 }
 
-/* Intro logo circles animation */
-.intro-logo-circle {
-    fill: var(--text-primary);
+/* Intro Saturn logo animation with 3D perspective */
+.intro-orbit {
+    stroke: var(--text-primary);
     opacity: 0;
     transform-origin: center;
-    animation: introCircleAppear 0.6s ease-out forwards;
+    transform-style: preserve-3d;
 }
 
-.intro-logo-circle-1 {
-    animation-delay: 0.2s;
+.intro-orbit-outer {
+    animation: introOrbitAppear 1.2s ease-out 0.3s forwards;
 }
 
-.intro-logo-circle-2 {
-    animation-delay: 0.4s;
+.intro-orbit-middle {
+    animation: introOrbitAppear 1.2s ease-out 0.6s forwards;
 }
 
-.intro-logo-circle-3 {
-    animation-delay: 0.6s;
+.intro-orbit-inner {
+    animation: introOrbitAppear 1.2s ease-out 0.9s forwards;
 }
 
-.intro-logo-circle-4 {
-    animation-delay: 0.8s;
-}
-
-.intro-logo-path {
+.intro-planet {
     stroke: var(--text-primary);
-    fill: none;
-    stroke-dasharray: 200;
-    stroke-dashoffset: 200;
-    animation: introPathDraw 1s ease-out 1s forwards;
+    opacity: 0;
+    transform: scale(0);
+    transform-origin: center;
+    animation: introPlanetAppear 1.0s ease-out 1.2s forwards;
 }
 
-@keyframes introCircleAppear {
-    from {
-        opacity: 0;
+.intro-letter {
+    fill: var(--text-primary);
+    opacity: 0;
+    transform: scale(0);
+    transform-origin: center;
+    animation: introLetterAppear 0.8s ease-out 1.8s forwards;
+}
+
+@keyframes introOrbitAppear {
+    0% { 
+        opacity: 0; 
+        transform: scale(0.3) rotate(-90deg); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: scale(1) rotate(0deg); 
+    }
+}
+
+@keyframes introPlanetAppear {
+    0% { 
+        opacity: 0; 
         transform: scale(0);
     }
-    to {
-        opacity: 1;
+    60% {
+        transform: scale(1.1);
+    }
+    100% { 
+        opacity: 1; 
         transform: scale(1);
     }
 }
 
-@keyframes introPathDraw {
-    to {
-        stroke-dashoffset: 0;
+@keyframes introLetterAppear {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
     }
 }
 
@@ -595,44 +630,79 @@ body:not(.intro-playing) .animated-logo {
     backface-visibility: hidden;
 }
 
-.logo-circle {
-    fill: var(--text-primary);
-    transition: all 0.6s ease;
+/* Main Saturn logo with seamless hover transitions */
+.animated-logo {
+    width: 200px; /* Much larger like Browser Company */
+    height: 200px;
+    cursor: default;
+    transition: transform 0.3s ease;
+    outline: none;
+    will-change: transform;
+    backface-visibility: hidden;
+    perspective: 800px; /* Increased perspective for larger logo */
+    transform-style: preserve-3d;
+    
+    /* Default animation durations */
+    --outer-duration: 25s;
+    --middle-duration: 18s;
+    --inner-duration: 12s;
+}
+
+.orbit {
+    stroke: var(--text-secondary);
+    fill: none;
+    transform-origin: center;
+    transition: stroke 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-style: preserve-3d;
+}
+
+.orbit-outer {
+    /* Horizontal rotation like Saturn's rings */
+    animation: orbit3D-horizontal var(--outer-duration, 25s) linear infinite;
+}
+
+.orbit-middle {
+    /* Diagonal rotation for 3D effect */
+    animation: orbit3D-diagonal var(--middle-duration, 18s) linear infinite reverse;
+}
+
+.orbit-inner {
+    /* Vertical rotation for complex 3D motion */
+    animation: orbit3D-vertical var(--inner-duration, 12s) linear infinite;
+}
+
+.planet {
+    stroke: var(--text-secondary);
+    fill: url(#planetGrad);
+    transition: all 0.4s ease;
     transform-origin: center;
 }
 
-.logo-circle-1 {
-    animation: float 3s ease-in-out infinite;
+.letter {
+    fill: var(--text-primary);
+    transition: all 0.4s ease;
+    transform-origin: center;
 }
 
-.logo-circle-2 {
-    animation: float 3s ease-in-out infinite 0.5s;
+/* Seamless 3D Saturn logo hover effects */
+.animated-logo:hover {
+    --outer-duration: 8s;
+    --middle-duration: 6s;
+    --inner-duration: 4s;
 }
 
-.logo-circle-3 {
-    animation: float 3s ease-in-out infinite 1s;
-}
-
-.logo-circle-4 {
-    animation: float 3s ease-in-out infinite 1.5s;
-}
-
-.logo-path {
-    stroke: var(--text-secondary);
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
-    animation: drawPath 4s ease-in-out infinite;
-    transition: stroke 0.3s ease;
-}
-
-.animated-logo:hover .logo-circle {
-    fill: var(--accent);
-    transform: scale(1.2);
-}
-
-.animated-logo:hover .logo-path {
+.animated-logo:hover .orbit {
     stroke: var(--accent);
-    stroke-dashoffset: 0;
+}
+
+.animated-logo:hover .planet {
+    stroke: var(--accent);
+    transform: scale(1.1);
+}
+
+.animated-logo:hover .letter {
+    fill: var(--accent);
+    transform: scale(1.05);
 }
 
 .highlight {
@@ -825,24 +895,42 @@ body:not(.intro-playing) .animated-logo {
     }
 }
 
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0);
+/* Realistic 3D Orbital Rotations - maintaining shape, changing perspective */
+@keyframes orbit3D-horizontal {
+    0% {
+        transform: rotateY(0deg);
     }
-    50% {
-        transform: translateY(-10px);
+    100% {
+        transform: rotateY(360deg);
     }
 }
 
-@keyframes drawPath {
-    0%, 20% {
-        stroke-dashoffset: 100;
-    }
-    50%, 80% {
-        stroke-dashoffset: 0;
+@keyframes orbit3D-diagonal {
+    0% {
+        transform: rotateX(45deg) rotateY(0deg);
     }
     100% {
-        stroke-dashoffset: 100;
+        transform: rotateX(45deg) rotateY(360deg);
+    }
+}
+
+@keyframes orbit3D-vertical {
+    0% {
+        transform: rotateX(75deg) rotateY(0deg);
+    }
+    100% {
+        transform: rotateX(75deg) rotateY(360deg);
+    }
+}
+
+@keyframes subtleFloat {
+    0%, 100% {
+        transform: translateY(0px);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateY(-3px);
+        opacity: 1;
     }
 }
 
