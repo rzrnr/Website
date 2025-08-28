@@ -99,6 +99,9 @@ class IntroAnimationManager {
         if (this.introLogo) {
             this.introLogo.style.animation = 'introFloat 1.5s ease-in-out infinite';
         }
+        
+        // Record animation start time for sync
+        this.animationStartTime = Date.now();
     }
 
     animateToNormalState() {
@@ -118,6 +121,9 @@ class IntroAnimationManager {
     completeIntro() {
         // Wait for animation to complete, then seamlessly switch logos
         setTimeout(() => {
+            // Sync animation states before switching
+            this.syncAnimationStates();
+            
             // Remove intro playing class and add complete class
             document.body.classList.remove('intro-playing');
             document.body.classList.add('intro-complete');
@@ -136,6 +142,41 @@ class IntroAnimationManager {
         }, 2800); // Faster cleanup
     }
 
+    syncAnimationStates() {
+        // Get current animation states from intro logo
+        const introOrbits = this.introLogo.querySelectorAll('.intro-orbit');
+        const mainOrbits = this.normalLogo.querySelectorAll('.orbit');
+        
+        // Calculate current rotation angles based on time elapsed
+        const timeElapsed = (Date.now() - this.animationStartTime) / 1000; // seconds
+        
+        // Sync each orbit animation
+        introOrbits.forEach((introOrbit, index) => {
+            const mainOrbit = mainOrbits[index];
+            if (!mainOrbit) return;
+            
+            // Calculate current rotation based on intro timing
+            let currentRotation = 0;
+            if (introOrbit.classList.contains('intro-orbit-outer')) {
+                currentRotation = (timeElapsed * 360 / 25) % 360; // 25s cycle
+            } else if (introOrbit.classList.contains('intro-orbit-middle')) {
+                currentRotation = -(timeElapsed * 360 / 18) % 360; // 18s cycle, reverse
+            } else if (introOrbit.classList.contains('intro-orbit-inner')) {
+                currentRotation = (timeElapsed * 360 / 12) % 360; // 12s cycle
+            }
+            
+            // Apply synchronized rotation to main orbit
+            mainOrbit.style.animationDelay = `-${(currentRotation / 360) * this.getAnimationDuration(mainOrbit)}s`;
+        });
+    }
+
+    getAnimationDuration(orbit) {
+        if (orbit.classList.contains('orbit-outer')) return 25;
+        if (orbit.classList.contains('orbit-middle')) return 18;
+        if (orbit.classList.contains('orbit-inner')) return 12;
+        return 25; // fallback
+    }
+
     skipIntro() {
         // Immediately show main content and hide intro
         document.body.classList.add('intro-complete');
@@ -148,7 +189,204 @@ class IntroAnimationManager {
     }
 }
 
-// Add CSS for intro float animation
+// ================================
+// SEAMLESS LOGO ANIMATION MANAGER
+// ================================
+
+class SeamlessLogoManager {
+    constructor() {
+        this.logo = document.querySelector('.animated-logo');
+        this.orbits = {
+            middle: this.logo?.querySelector('.orbit-middle'),
+            inner: this.logo?.querySelector('.orbit-inner')
+        };
+        this.planet = this.logo?.querySelector('.planet');
+        this.letter = this.logo?.querySelector('.letter');
+        
+        this.isHovering = false;
+        this.hoverIntensity = 0; // 0 = normal, 1 = full hover
+        this.targetHoverIntensity = 0;
+        
+        // Animation state tracking (removed outer orbit)
+        this.animationStates = {
+            middle: { currentRotation: 0, speed: 1 },
+            inner: { currentRotation: 0, speed: 1 }
+        };
+        
+        this.init();
+    }
+
+    init() {
+        if (!this.logo) return;
+        
+        this.setupEventListeners();
+        this.startAnimation();
+    }
+
+    setupEventListeners() {
+        this.logo.addEventListener('mouseenter', () => {
+            this.isHovering = true;
+            this.targetHoverIntensity = 1;
+        });
+
+        this.logo.addEventListener('mouseleave', () => {
+            this.isHovering = false;
+            this.targetHoverIntensity = 0;
+        });
+    }
+
+    startAnimation() {
+        const animate = () => {
+            // Smooth hover intensity interpolation
+            this.hoverIntensity += (this.targetHoverIntensity - this.hoverIntensity) * 0.08;
+            
+            // Update animation speeds based on hover intensity
+            const baseSpeed = 1;
+            const hoverSpeedMultiplier = 3; // Back to 3x for reasonable speed
+            const currentSpeedMultiplier = baseSpeed + (hoverSpeedMultiplier - baseSpeed) * this.hoverIntensity;
+            
+            // Simple orbit updates with very small increments for stability
+            this.updateOrbitSimple('middle', currentSpeedMultiplier, true);
+            this.updateOrbitSimple('inner', currentSpeedMultiplier, false);
+            
+            // Update colors and transforms
+            this.updateVisualEffects();
+            
+            requestAnimationFrame(animate);
+        };
+        
+        animate();
+    }
+
+    updateOrbitSimple(orbitName, speedMultiplier, reverse = false) {
+        const orbit = this.orbits[orbitName];
+        if (!orbit) return;
+        
+        const state = this.animationStates[orbitName];
+        
+        // Very small, stable increments
+        let baseIncrement = orbitName === 'middle' ? 0.15 : 0.2; // Different speeds for variety
+        baseIncrement *= speedMultiplier;
+        
+        if (reverse) {
+            state.currentRotation -= baseIncrement;
+        } else {
+            state.currentRotation += baseIncrement;
+        }
+        
+        // Keep rotation in bounds with simple wrapping
+        if (state.currentRotation >= 360) {
+            state.currentRotation -= 360;
+        }
+        if (state.currentRotation < 0) {
+            state.currentRotation += 360;
+        }
+        
+        // Very simple single-axis transforms
+        if (orbitName === 'middle') {
+            orbit.style.transform = `rotateY(${state.currentRotation}deg) rotateX(15deg)`;
+        } else if (orbitName === 'inner') {
+            orbit.style.transform = `rotateY(${state.currentRotation}deg) rotateX(25deg)`;
+        }
+    }
+
+    updateOrbit(orbitName, baseDuration, speedMultiplier, reverse = false) {
+        const orbit = this.orbits[orbitName];
+        if (!orbit) return;
+        
+        const state = this.animationStates[orbitName];
+        const speed = speedMultiplier / baseDuration;
+        const rotationIncrement = reverse ? -speed * 0.4 : speed * 0.4; // Even slower for more stability
+        
+        state.currentRotation += rotationIncrement;
+        
+        // Ensure rotation stays within 0-360 range without jumping
+        state.currentRotation = ((state.currentRotation % 360) + 360) % 360;
+        
+        // Simplified transforms - single axis rotation for stability
+        let transform = '';
+        if (orbitName === 'middle') {
+            // Simple Y-axis rotation with slight X tilt for 3D effect
+            transform = `rotateX(15deg) rotateY(${state.currentRotation}deg)`;
+        } else if (orbitName === 'inner') {
+            // Simple Y-axis rotation with different X tilt
+            transform = `rotateX(30deg) rotateY(${state.currentRotation}deg)`;
+        }
+        
+        orbit.style.transform = transform;
+    }
+
+    updateOrbit(orbitName, baseDuration, speedMultiplier, reverse = false) {
+        const orbit = this.orbits[orbitName];
+        if (!orbit) return;
+        
+        const state = this.animationStates[orbitName];
+        const speed = speedMultiplier / baseDuration;
+        const rotationIncrement = reverse ? -speed * 1.2 : speed * 1.2; // Increased from 0.5 to 1.2 for faster rotation
+        
+        state.currentRotation += rotationIncrement;
+        state.currentRotation = state.currentRotation % 360;
+        
+        // Apply rotation based on orbit type (improved visibility)
+        let transform = '';
+        if (orbitName === 'middle') {
+            // Reduce extreme angles and add slight offset for better visibility
+            const limitedRotation = (state.currentRotation * 0.7) % 360; // Reduce rotation range
+            transform = `rotateX(25deg) rotateY(${limitedRotation}deg) rotateZ(${limitedRotation * 0.3}deg)`;
+        } else if (orbitName === 'inner') {
+            // Different axis combination to avoid complete invisibility
+            const limitedRotation = (state.currentRotation * 0.8) % 360;
+            transform = `rotateX(45deg) rotateY(${limitedRotation}deg) rotateZ(${-limitedRotation * 0.2}deg)`;
+        }
+        
+        orbit.style.transform = transform;
+    }
+
+    updateVisualEffects() {
+        // Interpolate colors
+        const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+        const normalColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim();
+        
+        // Update orbit colors
+        Object.values(this.orbits).forEach(orbit => {
+            if (orbit) {
+                orbit.style.stroke = this.interpolateColor(normalColor, accentColor, this.hoverIntensity);
+            }
+        });
+        
+        // Update planet
+        if (this.planet) {
+            this.planet.style.stroke = this.interpolateColor(normalColor, accentColor, this.hoverIntensity);
+            const scale = 1 + (0.1 * this.hoverIntensity);
+            this.planet.style.transform = `scale(${scale})`;
+        }
+        
+        // Update letter
+        if (this.letter) {
+            this.letter.style.fill = this.interpolateColor(
+                getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim(),
+                accentColor,
+                this.hoverIntensity
+            );
+            const scale = 1 + (0.05 * this.hoverIntensity);
+            this.letter.style.transform = `scale(${scale})`;
+        }
+    }
+
+    interpolateColor(color1, color2, factor) {
+        // Simple color interpolation for CSS variables
+        // In a real implementation, you'd parse RGB values and interpolate
+        return factor > 0.5 ? color2 : color1;
+    }
+
+    syncWithIntroAnimation(currentRotations) {
+        // Method to sync with intro animation states (removed outer orbit)
+        if (currentRotations) {
+            this.animationStates.middle.currentRotation = currentRotations.middle || 0;
+            this.animationStates.inner.currentRotation = currentRotations.inner || 0;
+        }
+    }
+}
 const introStyles = `
     @keyframes introFloat {
         0%, 100% {
@@ -914,6 +1152,10 @@ class AccessibilityManager {
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize intro animation first
     const introManager = new IntroAnimationManager();
+    
+    // Initialize seamless logo animation system
+    const seamlessLogoManager = new SeamlessLogoManager();
+    seamlessLogoManager.init();
     
     // Initialize other managers after a short delay to let intro play
     setTimeout(() => {

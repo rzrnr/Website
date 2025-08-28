@@ -145,10 +145,6 @@ body {
     transform-style: preserve-3d;
 }
 
-.intro-orbit-outer {
-    animation: introOrbitAppear 1.2s ease-out 0.3s forwards;
-}
-
 .intro-orbit-middle {
     animation: introOrbitAppear 1.2s ease-out 0.6s forwards;
 }
@@ -405,7 +401,7 @@ body:not(.intro-playing) .animated-logo {
     /* Light Theme (Default) - Browser Company inspired */
     --bg-primary: #eeede7;
     --bg-secondary: #f8f8f8;
-    --text-primary: #1c1c1c;
+    --text-primary: #222222; /* Using dark mode background as text color */
     --text-secondary: #666666;
     --accent: #000000;
     --border: #e5e5e5;
@@ -417,7 +413,7 @@ body:not(.intro-playing) .animated-logo {
     /* Dark Theme - Browser Company inspired */
     --bg-primary: #222222;
     --bg-secondary: #171717;
-    --text-primary: #f5f5f5;
+    --text-primary: #eeede7; /* Using light mode background as text color */
     --text-secondary: #a3a3a3;
     --accent: #ffffff;
     --border: #2a2a2a;
@@ -637,80 +633,74 @@ body:not(.intro-playing) .animated-logo {
     width: 200px; /* Much larger like Browser Company */
     height: 200px;
     cursor: default;
-    transition: transform 0.3s ease;
     outline: none;
     will-change: transform;
     backface-visibility: hidden;
     perspective: 800px; /* Increased perspective for larger logo */
     transform-style: preserve-3d;
     
-    /* Default animation durations - using CSS custom properties for seamless transitions */
-    --outer-duration: 25s;
-    --middle-duration: 18s;
-    --inner-duration: 12s;
+    /* Prevent text selection on the entire logo */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     
-    /* Smooth transition when changing speeds */
-    --speed-transition: 2s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Prevent drag behavior */
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
 }
 
 .orbit {
     stroke: var(--text-secondary);
     fill: none;
     transform-origin: center;
-    transition: stroke 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
+    
+    /* Improved visibility for 3D rotations */
+    stroke-width: 2px; /* Slightly thicker for better visibility */
+    opacity: 0.9; /* Slightly transparent for depth effect */
+    
+    /* Prevent extreme thinning during rotation */
+    vector-effect: non-scaling-stroke;
+    
+    /* Add subtle shadow for depth perception */
+    filter: drop-shadow(0 0 1px rgba(0,0,0,0.1));
+    
+    /* Smooth transitions for JavaScript-controlled animations */
+    transition: stroke 0.6s ease;
 }
 
-.orbit-outer {
-    /* Horizontal rotation like Saturn's rings */
-    animation: orbit3D-horizontal var(--outer-duration, 25s) linear infinite;
-    transition: animation-duration var(--speed-transition, 2s) cubic-bezier(0.4, 0, 0.2, 1);
-}
-
+/* Specific improvements for dashed orbits */
 .orbit-middle {
-    /* Diagonal rotation for 3D effect */
-    animation: orbit3D-diagonal var(--middle-duration, 18s) linear infinite reverse;
-    transition: animation-duration var(--speed-transition, 2s) cubic-bezier(0.4, 0, 0.2, 1);
+    stroke-width: 2.5px; /* Thicker dashed line */
+    stroke-dasharray: 6,10; /* Adjusted dash pattern for better visibility */
+    opacity: 0.85;
 }
 
 .orbit-inner {
-    /* Vertical rotation for complex 3D motion */
-    animation: orbit3D-vertical var(--inner-duration, 12s) linear infinite;
-    transition: animation-duration var(--speed-transition, 2s) cubic-bezier(0.4, 0, 0.2, 1);
+    stroke-width: 2px; /* Slightly thicker */
+    stroke-dasharray: 4,6; /* Adjusted dash pattern */
+    opacity: 0.8;
 }
 
 .planet {
     stroke: var(--text-secondary);
     fill: url(#planetGrad);
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: center;
 }
 
 .letter {
     fill: var(--text-primary);
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: center;
-}
-
-/* Seamless 3D Saturn logo hover effects */
-.animated-logo:hover {
-    --outer-duration: 8s;
-    --middle-duration: 6s;
-    --inner-duration: 4s;
-}
-
-.animated-logo:hover .orbit {
-    stroke: var(--accent);
-}
-
-.animated-logo:hover .planet {
-    stroke: var(--accent);
-    transform: scale(1.1);
-}
-
-.animated-logo:hover .letter {
-    fill: var(--accent);
-    transform: scale(1.05);
+    
+    /* Extra protection for the letter specifically */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    pointer-events: none; /* Prevent any interaction with the text element */
 }
 
 .highlight {
