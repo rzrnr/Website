@@ -183,8 +183,76 @@ class MouseTrailManager {
         this.lastMouseX = 0;
         this.lastMouseY = 0;
         
-        if (this.trail && this.particleContainer) {
+        // Hover state management
+        this.isHovering = false;
+        this.hoverIntensity = 0; // 0 = normal, 1 = full hover
+        this.targetHoverIntensity = 0;
+        
+        console.log('MouseTrailManager init:', {
+            trail: !!this.trail,
+            trailDot: !!this.trailDot,
+            particleContainer: !!this.particleContainer
+        });
+        
+        if (this.trail && this.trailDot && this.particleContainer) {
             this.init();
+        } else {
+            console.warn('Mouse trail elements not found, creating them...');
+            this.createTrailElements();
+            this.init();
+        }
+    }
+
+    createTrailElements() {
+        // Create mouse trail if it doesn't exist
+        if (!this.trail) {
+            this.trail = document.createElement('div');
+            this.trail.className = 'mouse-trail';
+            this.trail.style.position = 'fixed';
+            this.trail.style.top = '0';
+            this.trail.style.left = '0';
+            this.trail.style.width = '100vw';
+            this.trail.style.height = '100vh';
+            this.trail.style.pointerEvents = 'none';
+            this.trail.style.zIndex = '9998';
+            this.trail.style.opacity = '1';
+            document.body.appendChild(this.trail);
+            console.log('Created trail container');
+        }
+        
+        // Create trail dot if it doesn't exist
+        if (!this.trailDot) {
+            this.trailDot = document.createElement('div');
+            this.trailDot.className = 'trail-dot';
+            this.trailDot.style.position = 'fixed';
+            this.trailDot.style.width = '80px';
+            this.trailDot.style.height = '80px';
+            this.trailDot.style.borderRadius = '60% 40% 70% 30%';
+            this.trailDot.style.pointerEvents = 'none';
+            this.trailDot.style.zIndex = '9999';
+            this.trailDot.style.opacity = '0.6';
+            this.trailDot.style.filter = 'blur(20px)';
+            this.trailDot.style.transform = 'translate(-50%, -50%)';
+            this.trailDot.style.background = 'radial-gradient(ellipse 120% 80% at 45% 40%, rgba(50, 50, 50, 0.5) 0%, rgba(80, 80, 80, 0.4) 20%, rgba(100, 100, 100, 0.3) 40%, rgba(70, 70, 70, 0.2) 60%, rgba(40, 40, 40, 0.1) 80%, transparent 100%)';
+            this.trailDot.style.left = '50px';
+            this.trailDot.style.top = '50px';
+            document.body.appendChild(this.trailDot);
+            console.log('Created trail dot directly on body');
+        }
+        
+        // Create particle container if it doesn't exist
+        if (!this.particleContainer) {
+            this.particleContainer = document.createElement('div');
+            this.particleContainer.className = 'trail-particles';
+            this.particleContainer.style.position = 'fixed';
+            this.particleContainer.style.top = '0';
+            this.particleContainer.style.left = '0';
+            this.particleContainer.style.width = '100vw';
+            this.particleContainer.style.height = '100vh';
+            this.particleContainer.style.pointerEvents = 'none';
+            this.particleContainer.style.zIndex = '9997';
+            document.body.appendChild(this.particleContainer);
+            console.log('Created particle container');
         }
     }
 
@@ -192,6 +260,7 @@ class MouseTrailManager {
         this.bindEvents();
         this.addHoverTargets();
         this.animate();
+        console.log('MouseTrailManager initialized successfully');
     }
 
     bindEvents() {
@@ -204,16 +273,38 @@ class MouseTrailManager {
         // Ensure trail is always visible when mouse is on page
         document.addEventListener('mouseenter', () => {
             if (this.trail) this.trail.style.opacity = '1';
+            if (this.trailDot) this.trailDot.style.opacity = '0.4';
             if (this.particleContainer) this.particleContainer.style.opacity = '1';
         });
 
         document.addEventListener('mouseleave', () => {
             if (this.trail) this.trail.style.opacity = '0';
+            if (this.trailDot) this.trailDot.style.opacity = '0';
             if (this.particleContainer) this.particleContainer.style.opacity = '0';
         });
         
-        // Make sure trail is visible from start
-        if (this.trail) this.trail.style.opacity = '1';
+        // Make sure trail is visible from start and properly styled
+        if (this.trail) {
+            this.trail.style.opacity = '1';
+            this.trail.style.position = 'fixed';
+            this.trail.style.top = '0';
+            this.trail.style.left = '0';
+            this.trail.style.width = '100vw';
+            this.trail.style.height = '100vh';
+            this.trail.style.pointerEvents = 'none';
+            this.trail.style.zIndex = '9998';
+        }
+        
+        if (this.trailDot) {
+            this.trailDot.style.opacity = '0.4';
+            this.trailDot.style.position = 'fixed';
+            this.trailDot.style.pointerEvents = 'none';
+            this.trailDot.style.zIndex = '9999';
+            this.trailDot.style.display = 'block';
+            this.trailDot.style.visibility = 'visible';
+            console.log('Trail dot styled:', this.trailDot);
+        }
+        
         if (this.particleContainer) this.particleContainer.style.opacity = '1';
     }
 
@@ -249,13 +340,13 @@ class MouseTrailManager {
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
             
-            // Get theme for particle color
+            // Get theme for particle color - INVERTED LOGIC
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             const particleColor = isDark ? 
-                'rgba(150, 200, 255, 0.8)' : 
+                'rgba(255, 255, 255, 0.8)' : 
                 'rgba(50, 50, 50, 0.8)';
             const shadowColor = isDark ? 
-                'rgba(150, 200, 255, 0.6)' : 
+                'rgba(255, 255, 255, 0.6)' : 
                 'rgba(50, 50, 50, 0.6)';
             
             // Set ALL styles inline for beautiful particles
@@ -302,19 +393,95 @@ class MouseTrailManager {
     animate() {
         const updateTrail = () => {
             // Smooth trail following
-            this.trailX += (this.mouseX - this.trailX) * 0.08;
-            this.trailY += (this.mouseY - this.trailY) * 0.08;
+            this.trailX += (this.mouseX - this.trailX) * 0.12;
+            this.trailY += (this.mouseY - this.trailY) * 0.12;
             
-            // Update trail position with correct positioning
+            // Smooth hover intensity interpolation
+            this.hoverIntensity += (this.targetHoverIntensity - this.hoverIntensity) * 0.08;
+            
+            // Update trail position and hover effects
             if (this.trailDot) {
                 this.trailDot.style.left = this.trailX + 'px';
                 this.trailDot.style.top = this.trailY + 'px';
+                
+                // Interpolate size and opacity based on hover intensity
+                const baseSize = 80;
+                const hoverSize = 140;
+                const currentSize = baseSize + (hoverSize - baseSize) * this.hoverIntensity;
+                
+                const baseOpacity = 0.6;
+                const hoverOpacity = 0.7;
+                const currentOpacity = baseOpacity + (hoverOpacity - baseOpacity) * this.hoverIntensity;
+                
+                const baseBlur = 20;
+                const hoverBlur = 25;
+                const currentBlur = baseBlur + (hoverBlur - baseBlur) * this.hoverIntensity;
+                
+                this.trailDot.style.width = currentSize + 'px';
+                this.trailDot.style.height = currentSize + 'px';
+                this.trailDot.style.opacity = currentOpacity;
+                this.trailDot.style.filter = `blur(${currentBlur}px)`;
+                
+                // Interpolate background colors
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                this.updateTrailBackground(isDark);
+                
+                // Debug: Log position occasionally
+                if (Math.random() < 0.01) {
+                    console.log('Trail dot:', this.trailX, this.trailY, 'Hover:', this.hoverIntensity.toFixed(2));
+                }
             }
             
             requestAnimationFrame(updateTrail);
         };
         
         updateTrail();
+    }
+
+    updateTrailBackground(isDark) {
+        if (!this.trailDot) return;
+        
+        const intensity = this.hoverIntensity;
+        
+        if (isDark) {
+            // Dark mode: white/light colors
+            const baseColors = [
+                `rgba(255, 255, 255, ${0.5 + intensity * 0.1})`,
+                `rgba(240, 240, 255, ${0.4 + intensity * 0.1})`,
+                `rgba(220, 230, 255, ${0.3 + intensity * 0.1})`,
+                `rgba(200, 210, 240, ${0.2 + intensity * 0.1})`,
+                `rgba(180, 190, 220, ${0.1 + intensity * 0.1})`
+            ];
+            
+            this.trailDot.style.background = `radial-gradient(
+                ellipse ${120 + intensity * 10}% ${80 - intensity * 10}% at ${45 - intensity * 5}% ${40 + intensity * 5}%,
+                ${baseColors[0]} 0%,
+                ${baseColors[1]} ${20 - intensity * 5}%,
+                ${baseColors[2]} ${40 - intensity * 10}%,
+                ${baseColors[3]} ${60 - intensity * 10}%,
+                ${baseColors[4]} ${80 - intensity * 10}%,
+                transparent 100%
+            )`;
+        } else {
+            // Light mode: dark/gray colors
+            const baseColors = [
+                `rgba(${30 + intensity * 20}, ${30 + intensity * 20}, ${30 + intensity * 20}, ${0.5 + intensity * 0.1})`,
+                `rgba(${60 + intensity * 20}, ${60 + intensity * 20}, ${60 + intensity * 20}, ${0.4 + intensity * 0.1})`,
+                `rgba(${90 + intensity * 10}, ${90 + intensity * 10}, ${90 + intensity * 10}, ${0.3 + intensity * 0.1})`,
+                `rgba(${50 + intensity * 10}, ${50 + intensity * 10}, ${50 + intensity * 10}, ${0.2 + intensity * 0.1})`,
+                `rgba(${20 + intensity * 10}, ${20 + intensity * 10}, ${20 + intensity * 10}, ${0.1 + intensity * 0.1})`
+            ];
+            
+            this.trailDot.style.background = `radial-gradient(
+                ellipse ${120 + intensity * 10}% ${80 - intensity * 10}% at ${45 - intensity * 5}% ${40 + intensity * 5}%,
+                ${baseColors[0]} 0%,
+                ${baseColors[1]} ${20 - intensity * 5}%,
+                ${baseColors[2]} ${40 - intensity * 10}%,
+                ${baseColors[3]} ${60 - intensity * 10}%,
+                ${baseColors[4]} ${80 - intensity * 10}%,
+                transparent 100%
+            )`;
+        }
     }
 
     destroy() {
@@ -335,12 +502,33 @@ class MouseTrailManager {
 
         hoverTargets.forEach(target => {
             target.addEventListener('mouseenter', () => {
-                this.trailDot.classList.add('trail-hover');
+                this.isHovering = true;
+                this.targetHoverIntensity = 1; // Smooth transition to full hover
             });
 
             target.addEventListener('mouseleave', () => {
-                this.trailDot.classList.remove('trail-hover');
+                this.isHovering = false;
+                this.targetHoverIntensity = 0; // Smooth transition back to normal
             });
+        });
+
+        // Global mouse tracking for better hover detection
+        document.addEventListener('mouseover', (e) => {
+            const isHoverTarget = e.target.closest('a, button, .project-card, .animated-logo, .theme-toggle');
+            if (isHoverTarget && !this.isHovering) {
+                this.isHovering = true;
+                this.targetHoverIntensity = 1;
+            }
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            const isLeavingHoverTarget = e.target.closest('a, button, .project-card, .animated-logo, .theme-toggle');
+            const isEnteringHoverTarget = e.relatedTarget && e.relatedTarget.closest('a, button, .project-card, .animated-logo, .theme-toggle');
+            
+            if (isLeavingHoverTarget && !isEnteringHoverTarget) {
+                this.isHovering = false;
+                this.targetHoverIntensity = 0;
+            }
         });
     }
 }
@@ -436,16 +624,51 @@ class MagneticEffectManager {
         magneticElements.forEach((element, index) => {
             let isHovering = false;
             let ticking = false;
+            let currentX = 0;
+            let currentY = 0;
+            let targetX = 0;
+            let targetY = 0;
+            
+            // Animation loop for smooth interpolation
+            const animate = () => {
+                if (isHovering) {
+                    // Smooth interpolation to target position
+                    currentX += (targetX - currentX) * 0.15;
+                    currentY += (targetY - currentY) * 0.15;
+                    
+                    element.style.transform = `translate(${currentX}px, ${currentY}px)`;
+                    requestAnimationFrame(animate);
+                } else {
+                    // Smooth return to center
+                    currentX += (0 - currentX) * 0.08; // Slower return
+                    currentY += (0 - currentY) * 0.08;
+                    
+                    element.style.transform = `translate(${currentX}px, ${currentY}px)`;
+                    
+                    // Continue animating until we're close enough to center
+                    if (Math.abs(currentX) > 0.1 || Math.abs(currentY) > 0.1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        // Snap to exact center when close enough
+                        element.style.transform = 'translate(0, 0)';
+                        currentX = 0;
+                        currentY = 0;
+                    }
+                }
+            };
             
             element.addEventListener('mouseenter', () => {
                 isHovering = true;
+                // Remove any CSS transitions to allow JS control
+                element.style.transition = 'none';
+                animate();
             }, { passive: true });
             
             element.addEventListener('mousemove', (e) => {
                 if (!isHovering || ticking) return;
                 
                 ticking = true;
-                this.rafId = requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
                     const rect = element.getBoundingClientRect();
                     const centerX = rect.left + rect.width / 2;
                     const centerY = rect.top + rect.height / 2;
@@ -454,25 +677,19 @@ class MagneticEffectManager {
                     const deltaY = e.clientY - centerY;
                     
                     // Reduced strength for smoother effect
-                    const strength = element.classList.contains('animated-logo') ? 0.15 : 0.1;
-                    const moveX = deltaX * strength;
-                    const moveY = deltaY * strength;
+                    const strength = element.classList.contains('animated-logo') ? 0.08 : 0.06;
+                    targetX = deltaX * strength;
+                    targetY = deltaY * strength;
                     
-                    element.style.transform = `translate(${moveX}px, ${moveY}px)`;
                     ticking = false;
                 });
             }, { passive: true });
             
             element.addEventListener('mouseleave', () => {
                 isHovering = false;
-                // Smooth return to center with bounce effect
-                element.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
-                element.style.transform = 'translate(0, 0)';
-                
-                // Remove transition after animation completes
-                setTimeout(() => {
-                    element.style.transition = '';
-                }, 800);
+                targetX = 0;
+                targetY = 0;
+                // animate() will handle the smooth return
             }, { passive: true });
         });
     }
